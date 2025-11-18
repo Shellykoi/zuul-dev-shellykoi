@@ -41,15 +41,25 @@ public class Parser
      */
     public Command getCommand()
     {
-        String inputLine;
+        System.out.print("> ");
+        String inputLine = reader.nextLine().trim();
+        return parseCommand(inputLine);
+    }
+    
+    /**
+     * 解析命令字符串为Command对象。
+     * 用于GUI模式，不读取System.in。
+     * 
+     * @param inputLine 输入的命令字符串
+     * @return 解析后的Command对象
+     */
+    public Command parseCommand(String inputLine)
+    {
         String word1 = null;
         String word2 = null;
 
-        System.out.print("> ");
-
-        inputLine = reader.nextLine().trim();
-
-        Scanner tokenizer = new Scanner(inputLine);
+        Scanner tokenizer = new Scanner(inputLine.trim());
+        try {
         if(tokenizer.hasNext()) {
             word1 = tokenizer.next().toLowerCase();   // 读取第一个单词并转为小写
             
@@ -73,6 +83,9 @@ public class Parser
         }
         else {
             return new Command(null, word2);
+        }
+        } finally {
+            tokenizer.close();
         }
     }
 
