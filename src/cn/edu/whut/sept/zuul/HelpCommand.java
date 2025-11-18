@@ -1,0 +1,30 @@
+/**
+ * Help命令执行器。
+ * 显示游戏帮助信息。
+ * 
+ * @author 扩展功能实现
+ * @version 2.0
+ */
+package cn.edu.whut.sept.zuul;
+
+public class HelpCommand implements CommandExecutor
+{
+    /**
+     * 执行help命令，显示游戏帮助信息。
+     * 
+     * @param command 命令对象
+     * @param game 游戏对象
+     * @return 总是返回false（help命令不会退出游戏）
+     */
+    @Override
+    public boolean execute(Command command, Game game)
+    {
+        System.out.println("You are lost. You are alone. You wander");
+        System.out.println("around at the university.");
+        System.out.println();
+        System.out.println("Your command words are:");
+        game.getParser().showCommands();
+        return false;
+    }
+}
+

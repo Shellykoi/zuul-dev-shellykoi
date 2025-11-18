@@ -13,7 +13,7 @@ public class CommandWords
      * 游戏中所有有效命令的数组。
      */
     private static final String[] validCommands = {
-            "go", "quit", "help"
+            "go", "quit", "help", "look", "back", "take", "drop", "items", "eat"
     };
 
     /**
