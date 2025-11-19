@@ -30,6 +30,18 @@ java -cp bin cn.edu.whut.sept.zuul.WebMain
 
 http://localhost:8080
 
+
+   cd D:\PycharmProjects\zuul-dev\se23-sept1-Shellykoi
+   javac -d bin -encoding UTF-8 src/cn/edu/whut/sept/zuul/*.java
+   java -cp bin cn.edu.whut.sept.zuul.WebMain
+
+   # Windows系统（使用分号;作为classpath分隔符）
+   javac -d bin -encoding UTF-8 -cp "lib\mysql-connector-j-8.0.33.jar" src\cn\edu\whut\sept\zuul\*.java
+   java -cp "bin;lib\mysql-connector-j-8.0.33.jar" cn.edu.whut.sept.zuul.WebMain
+   
+   # Linux/Mac系统（使用冒号:作为classpath分隔符）
+   # javac -d bin -encoding UTF-8 -cp "lib/mysql-connector-j-8.0.33.jar" src/cn/edu/whut/sept/zuul/*.java
+   # java -cp "bin:lib/mysql-connector-j-8.0.33.jar" cn.edu.whut.sept.zuul.WebMain
 ---
 
 ## 🗺️ 游戏世界
@@ -76,6 +88,9 @@ http://localhost:8080
 
 | 命令 | 说明 | 示例 |
 |------|------|------|
+| `status` | 查看游戏进度和通关状态 | `status` |
+| `save` | 保存当前游戏状态到数据库 | `save` |
+| `load` | 从数据库加载上次保存的游戏 | `load` |
 | `quit` | 退出游戏 | `quit` |
 
 ---
@@ -316,24 +331,88 @@ You are already at the starting point!
 
 ---
 
-## 🎯 游戏目标
+## 🎯 游戏目标与通关条件
 
-虽然没有明确的胜利条件，但你可以尝试：
+### 游戏目标
 
-- ✅ 探索所有房间
-- ✅ 收集所有物品
-- ✅ 找到并吃掉魔法饼干
-- ✅ 体验传输房间的随机传送
-- ✅ 熟悉所有命令的使用
+游戏的主要目标是**探索并收集所有物品**，完成以下任务：
+
+1. **探索所有房间** - 访问游戏世界中的每个房间
+2. **收集所有物品** - 拾取所有房间中的物品（共8个物品）
+3. **找到并吃掉魔法饼干** - 增加负重能力
+4. **返回起点** - 收集完所有物品后，回到起始房间（outside）
+
+### 通关条件
+
+**游戏胜利条件**：
+- ✅ 已探索所有6个房间（outside, theater, pub, lab, office, transporter）
+- ✅ 已收集所有8个物品（key, map, book, coin, bottle, computer, cable, cookie）
+- ✅ 已吃掉魔法饼干（增加负重）
+- ✅ 当前在起始房间（outside）
+
+**如何查看进度**：
+- 使用 `status` 命令查看游戏进度和完成情况
+- 系统会自动检测你是否满足通关条件
+
+**通关后**：
+- 系统会显示胜利消息
+- 你的游戏记录会被保存到数据库
+- 可以继续游戏或退出
+
+### 游戏物品清单
+
+游戏中共有**8个物品**需要收集：
+
+1. **key** - 一把生锈的旧钥匙 (0.1kg) - 在 outside
+2. **map** - 一张校园地图 (0.2kg) - 在 outside
+3. **book** - 一本编程教科书 (1.5kg) - 在 theater
+4. **coin** - 一枚金币 (0.05kg) - 在 pub
+5. **bottle** - 一个空瓶子 (0.3kg) - 在 pub
+6. **computer** - 一台笔记本电脑 (2.5kg) - 在 lab
+7. **cable** - 一根USB线 (0.1kg) - 在 lab
+8. **cookie** - 魔法饼干 (0.1kg) - 随机出现在某个房间
+
+**注意**：魔法饼干（cookie）必须被**吃掉**（使用 `eat cookie` 命令），而不是仅仅拾取。
 
 ---
+
+## 🎮 多人游戏模式
+
+### 玩家登录/注册
+
+游戏支持多人游戏模式，每个玩家都有独立的游戏进度：
+
+1. **注册新账号**：
+   - 首次游戏时，系统会提示你注册
+   - 输入用户名和密码即可创建账号
+   - 账号信息会保存到数据库
+
+2. **登录已有账号**：
+   - 使用注册时的用户名和密码登录
+   - 可以继续之前的游戏进度
+
+3. **游戏状态保存**：
+   - 使用 `save` 命令保存当前游戏状态
+   - 包括：当前位置、物品清单、探索进度等
+   - 下次登录时可以 `load` 继续游戏
+
+### 游戏记录
+
+系统会自动记录：
+- 游戏开始时间
+- 游戏结束时间
+- 通关状态
+- 收集的物品数量
+- 探索的房间数量
 
 ## 🆘 需要帮助？
 
 - 输入 `help` 命令查看所有可用命令
 - 使用 `look` 命令随时查看当前房间信息
 - 使用 `items` 命令查看物品状态
+- 使用 `status` 命令查看游戏进度
 - 使用 `back` 命令返回上一个房间
+- 使用 `save` 命令保存游戏进度
 
 ---
 

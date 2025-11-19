@@ -10,7 +10,10 @@ const API_BASE_URL = 'http://localhost:8080/api';
 let gameState = {
     currentRoom: null,
     player: null,
-    isLoading: false
+    isLoading: false,
+    sessionId: null,
+    username: null,
+    isLoggedIn: false
 };
 
 /**
@@ -22,30 +25,57 @@ function initGame() {
     // 绑定事件监听器
     setupEventListeners();
     
-    // 加载游戏初始状态
-    loadGameState();
+    // 禁用游戏界面直到登录
+    setGameEnabled(false);
     
-    // 添加欢迎消息（已在HTML中显示，这里不需要重复）
+    // 显示登录界面
+    showLoginModal();
 }
 
 /**
  * 设置事件监听器
  */
 function setupEventListeners() {
+    // 登录/注册相关
+    document.getElementById('login-tab').addEventListener('click', () => switchTab('login'));
+    document.getElementById('register-tab').addEventListener('click', () => switchTab('register'));
+    document.getElementById('login-btn').addEventListener('click', handleLogin);
+    document.getElementById('register-btn').addEventListener('click', handleRegister);
+    document.getElementById('guest-btn').addEventListener('click', handleGuestLogin);
+    
+    // 登录表单回车提交
+    document.getElementById('login-username').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') handleLogin();
+    });
+    document.getElementById('login-password').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') handleLogin();
+    });
+    
+    // 注册表单回车提交
+    document.getElementById('register-username').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') handleRegister();
+    });
+    document.getElementById('register-password').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') handleRegister();
+    });
+    document.getElementById('register-password-confirm').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') handleRegister();
+    });
+    
     // 命令输入框
     const commandInput = document.getElementById('command-input');
     const submitBtn = document.getElementById('submit-btn');
     
     // 回车提交命令
     commandInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter' && !gameState.isLoading) {
+        if (e.key === 'Enter' && !gameState.isLoading && gameState.isLoggedIn) {
             executeCommand();
         }
     });
     
     // 提交按钮
     submitBtn.addEventListener('click', () => {
-        if (!gameState.isLoading) {
+        if (!gameState.isLoading && gameState.isLoggedIn) {
             executeCommand();
         }
     });
@@ -65,33 +95,43 @@ function setupEventListeners() {
     // 方向按钮
     document.querySelectorAll('.btn-direction').forEach(btn => {
         btn.addEventListener('click', () => {
-            const command = btn.getAttribute('data-command');
-            executeCommand(command);
+            if (gameState.isLoggedIn) {
+                const command = btn.getAttribute('data-command');
+                executeCommand(command);
+            }
         });
     });
     
     // 动作按钮
     document.querySelectorAll('.btn-action').forEach(btn => {
         btn.addEventListener('click', () => {
-            const command = btn.getAttribute('data-command');
-            executeCommand(command);
+            if (gameState.isLoggedIn) {
+                const command = btn.getAttribute('data-command');
+                executeCommand(command);
+            }
         });
     });
     
     // 物品操作按钮
     document.getElementById('btn-take').addEventListener('click', () => {
-        showItemSelection('take');
+        if (gameState.isLoggedIn) {
+            showItemSelection('take');
+        }
     });
     
     document.getElementById('btn-drop').addEventListener('click', () => {
-        showItemSelection('drop');
+        if (gameState.isLoggedIn) {
+            showItemSelection('drop');
+        }
     });
     
     document.querySelectorAll('.btn-item[data-command]').forEach(btn => {
         if (!btn.id || btn.id === 'btn-take' || btn.id === 'btn-drop') return;
         btn.addEventListener('click', () => {
-            const command = btn.getAttribute('data-command');
-            executeCommand(command);
+            if (gameState.isLoggedIn) {
+                const command = btn.getAttribute('data-command');
+                executeCommand(command);
+            }
         });
     });
     
@@ -109,10 +149,260 @@ function setupEventListeners() {
 }
 
 /**
+ * 切换登录/注册标签页
+ */
+function switchTab(tab) {
+    const loginTab = document.getElementById('login-tab');
+    const registerTab = document.getElementById('register-tab');
+    const loginForm = document.getElementById('login-form');
+    const registerForm = document.getElementById('register-form');
+    
+    if (tab === 'login') {
+        loginTab.classList.add('active');
+        registerTab.classList.remove('active');
+        loginForm.style.display = 'block';
+        registerForm.style.display = 'none';
+    } else {
+        registerTab.classList.add('active');
+        loginTab.classList.remove('active');
+        loginForm.style.display = 'none';
+        registerForm.style.display = 'block';
+    }
+    
+    // 清空消息
+    document.getElementById('login-message').textContent = '';
+    document.getElementById('register-message').textContent = '';
+}
+
+/**
+ * 显示登录模态框
+ */
+function showLoginModal() {
+    const modal = document.getElementById('login-modal');
+    modal.classList.add('show');
+}
+
+/**
+ * 隐藏登录模态框
+ */
+function hideLoginModal() {
+    const modal = document.getElementById('login-modal');
+    modal.classList.remove('show');
+}
+
+/**
+ * 处理登录
+ */
+async function handleLogin() {
+    const username = document.getElementById('login-username').value.trim();
+    const password = document.getElementById('login-password').value.trim();
+    const loadSaved = document.getElementById('load-saved-game').checked;
+    const messageEl = document.getElementById('login-message');
+    
+    if (!username || !password) {
+        showMessage(messageEl, '请输入用户名和密码', 'error');
+        return;
+    }
+    
+    try {
+        const response = await fetch(`${API_BASE_URL}/login`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ username, password })
+        });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            gameState.sessionId = data.sessionId;
+            gameState.username = data.username;
+            gameState.isLoggedIn = true;
+            
+            showMessage(messageEl, '登录成功！', 'success');
+            
+            // 如果选择加载保存的游戏
+            if (loadSaved) {
+                setTimeout(async () => {
+                    await loadSavedGame();
+                    hideLoginModal();
+                    setGameEnabled(true);
+                    await loadGameState();
+                    addOutputMessage(`欢迎回来，${username}！`, 'game-response');
+                }, 500);
+            } else {
+                // 开始新游戏（游戏状态会在后端自动重置）
+                setTimeout(() => {
+                    hideLoginModal();
+                    setGameEnabled(true);
+                    loadGameState();
+                    addOutputMessage(`欢迎，${username}！开始新游戏。`, 'game-response');
+                    addOutputMessage('输入 \'help\' 查看所有可用命令。', 'game-response');
+                }, 500);
+            }
+        } else {
+            showMessage(messageEl, data.message || '登录失败', 'error');
+        }
+    } catch (error) {
+        console.error('登录时出错:', error);
+        showMessage(messageEl, '无法连接到服务器，请确保服务器正在运行', 'error');
+    }
+}
+
+/**
+ * 处理注册
+ */
+async function handleRegister() {
+    const username = document.getElementById('register-username').value.trim();
+    const password = document.getElementById('register-password').value.trim();
+    const passwordConfirm = document.getElementById('register-password-confirm').value.trim();
+    const messageEl = document.getElementById('register-message');
+    
+    if (!username || !password) {
+        showMessage(messageEl, '请输入用户名和密码', 'error');
+        return;
+    }
+    
+    if (password !== passwordConfirm) {
+        showMessage(messageEl, '两次输入的密码不一致', 'error');
+        return;
+    }
+    
+    if (password.length < 3) {
+        showMessage(messageEl, '密码长度至少为3个字符', 'error');
+        return;
+    }
+    
+    try {
+        const response = await fetch(`${API_BASE_URL}/register`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ username, password })
+        });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            gameState.sessionId = data.sessionId;
+            gameState.username = data.username;
+            gameState.isLoggedIn = true;
+            
+            showMessage(messageEl, '注册成功！正在登录...', 'success');
+            
+            setTimeout(() => {
+                hideLoginModal();
+                setGameEnabled(true);
+                loadGameState();
+                addOutputMessage(`欢迎，${username}！开始新游戏。`, 'game-response');
+                addOutputMessage('输入 \'help\' 查看所有可用命令。', 'game-response');
+            }, 500);
+        } else {
+            showMessage(messageEl, data.message || '注册失败', 'error');
+        }
+    } catch (error) {
+        console.error('注册时出错:', error);
+        showMessage(messageEl, '无法连接到服务器，请确保服务器正在运行', 'error');
+    }
+}
+
+/**
+ * 处理游客登录
+ */
+async function handleGuestLogin() {
+    // 创建匿名会话
+    gameState.sessionId = null; // 后端会自动创建匿名会话
+    gameState.username = 'Guest';
+    gameState.isLoggedIn = true;
+    
+    hideLoginModal();
+    setGameEnabled(true);
+    loadGameState();
+    addOutputMessage('欢迎，游客！开始新游戏（游戏进度不会被保存）。', 'game-response');
+    addOutputMessage('输入 \'help\' 查看所有可用命令。', 'game-response');
+}
+
+/**
+ * 加载保存的游戏
+ */
+async function loadSavedGame() {
+    if (!gameState.sessionId) {
+        return;
+    }
+    
+    try {
+        const response = await fetch(`${API_BASE_URL}/load`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ sessionId: gameState.sessionId })
+        });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            addOutputMessage('游戏状态已加载！', 'game-response');
+        } else {
+            addOutputMessage('没有找到保存的游戏，开始新游戏。', 'game-response');
+        }
+    } catch (error) {
+        console.error('加载游戏时出错:', error);
+        addOutputMessage('加载失败，开始新游戏。', 'error');
+    }
+}
+
+/**
+ * 显示消息
+ */
+function showMessage(element, message, type) {
+    element.textContent = message;
+    element.className = `form-message ${type}`;
+}
+
+/**
+ * 设置游戏界面启用/禁用
+ */
+function setGameEnabled(enabled) {
+    const commandInput = document.getElementById('command-input');
+    const submitBtn = document.getElementById('submit-btn');
+    const gameContainer = document.querySelector('.game-container');
+    
+    commandInput.disabled = !enabled;
+    submitBtn.disabled = !enabled;
+    
+    // 禁用所有按钮
+    document.querySelectorAll('.btn-direction, .btn-action, .btn-item').forEach(btn => {
+        btn.disabled = !enabled;
+    });
+    
+    if (enabled) {
+        gameContainer.style.opacity = '1';
+        commandInput.focus();
+    } else {
+        gameContainer.style.opacity = '0.5';
+    }
+}
+
+/**
  * 执行游戏命令
  */
 async function executeCommand(command = null) {
-    if (gameState.isLoading) {
+    if (gameState.isLoading || !gameState.isLoggedIn) {
         return;
     }
     
@@ -133,13 +423,19 @@ async function executeCommand(command = null) {
     setLoadingState(true);
     
     try {
+        // 构建请求体
+        const requestBody = { command: command };
+        if (gameState.sessionId) {
+            requestBody.sessionId = gameState.sessionId;
+        }
+        
         // 调用API执行命令
         const response = await fetch(`${API_BASE_URL}/command`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ command: command })
+            body: JSON.stringify(requestBody)
         });
         
         if (!response.ok) {
@@ -174,14 +470,23 @@ function handleCommandResponse(data) {
     // 显示游戏响应消息
     if (data.message) {
         const messageType = data.success ? 'game-response' : 'error';
-        addOutputMessage(data.message, messageType);
+        // 处理多行消息
+        const lines = data.message.split('\n');
+        lines.forEach(line => {
+            if (line.trim()) {
+                addOutputMessage(line, messageType);
+            }
+        });
     }
     
     // 如果是退出命令
     if (data.quit) {
         setTimeout(() => {
-            alert('感谢游玩！再见！');
-            window.close();
+            gameState.isLoggedIn = false;
+            setGameEnabled(false);
+            showLoginModal();
+            clearOutput();
+            addOutputMessage('已退出游戏。', 'game-response');
         }, 500);
     }
 }
@@ -190,14 +495,28 @@ function handleCommandResponse(data) {
  * 加载游戏状态
  */
 async function loadGameState() {
+    if (!gameState.isLoggedIn) {
+        return;
+    }
+    
     try {
-        const response = await fetch(`${API_BASE_URL}/status`);
+        let url = `${API_BASE_URL}/status`;
+        if (gameState.sessionId) {
+            url += `?sessionId=${encodeURIComponent(gameState.sessionId)}`;
+        }
+        
+        const response = await fetch(url);
         
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
         
         const data = await response.json();
+        
+        if (data.error) {
+            console.error('获取游戏状态错误:', data.error);
+            return;
+        }
         
         // 更新游戏状态
         gameState.currentRoom = data.currentRoom;
@@ -218,7 +537,6 @@ async function loadGameState() {
 function updateUI() {
     // 更新顶部状态栏
     if (gameState.currentRoom) {
-        // 房间描述已经是中文，直接使用
         const shortDesc = gameState.currentRoom.shortDescription || '未知房间';
         document.getElementById('room-name').textContent = shortDesc;
     }
@@ -237,10 +555,10 @@ function updateUI() {
     // 更新方向按钮状态
     if (gameState.currentRoom && gameState.currentRoom.exits) {
         const exits = gameState.currentRoom.exits;
-        document.getElementById('btn-north').disabled = !exits.north;
-        document.getElementById('btn-south').disabled = !exits.south;
-        document.getElementById('btn-east').disabled = !exits.east;
-        document.getElementById('btn-west').disabled = !exits.west;
+        document.getElementById('btn-north').disabled = !exits.north || !gameState.isLoggedIn;
+        document.getElementById('btn-south').disabled = !exits.south || !gameState.isLoggedIn;
+        document.getElementById('btn-east').disabled = !exits.east || !gameState.isLoggedIn;
+        document.getElementById('btn-west').disabled = !exits.west || !gameState.isLoggedIn;
     }
 }
 
@@ -265,7 +583,6 @@ function addOutputMessage(message, type = 'game-response') {
 function clearOutput() {
     const outputArea = document.getElementById('output-area');
     outputArea.innerHTML = '';
-    addOutputMessage('日志已清空。', 'game-response');
 }
 
 /**
@@ -281,10 +598,12 @@ function setLoadingState(loading) {
         submitBtn.textContent = '执行中...';
         commandInput.disabled = true;
     } else {
-        submitBtn.disabled = false;
+        submitBtn.disabled = !gameState.isLoggedIn;
         submitBtn.textContent = '执行';
-        commandInput.disabled = false;
-        commandInput.focus();
+        commandInput.disabled = !gameState.isLoggedIn;
+        if (gameState.isLoggedIn) {
+            commandInput.focus();
+        }
     }
 }
 
@@ -298,7 +617,6 @@ async function showItemSelection(action) {
         let title = '';
         
         if (action === 'take') {
-            // 获取房间物品
             if (gameState.currentRoom && gameState.currentRoom.items) {
                 items = gameState.currentRoom.items;
                 title = '选择要拾取的物品';
@@ -307,7 +625,6 @@ async function showItemSelection(action) {
                 return;
             }
         } else if (action === 'drop') {
-            // 获取玩家物品
             if (gameState.player && gameState.player.inventory) {
                 items = gameState.player.inventory;
                 title = '选择要丢弃的物品';
@@ -367,11 +684,3 @@ function closeModal() {
 document.addEventListener('DOMContentLoaded', () => {
     initGame();
 });
-
-// 定期更新游戏状态（每5秒）
-setInterval(() => {
-    if (!gameState.isLoading) {
-        loadGameState();
-    }
-}, 5000);
-

@@ -36,7 +36,7 @@ public class EatCookieCommand implements CommandExecutor
         }
 
         // 吃掉饼干，增加负重
-        player.dropItem("cookie");
+        player.eatCookie();  // 使用Player的新方法
         double weightIncrease = 5.0;  // 增加5kg负重
         player.increaseMaxWeight(weightIncrease);
         System.out.println("你吃掉了魔法饼干！");

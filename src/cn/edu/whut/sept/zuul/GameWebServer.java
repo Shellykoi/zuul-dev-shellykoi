@@ -18,10 +18,12 @@ import java.util.Map;
 
 
 public class GameWebServer {
-    private static final int PORT = 8080;
+    private static final int DEFAULT_PORT = 8080;
+    private static final int MAX_PORT_ATTEMPTS = 100; // 最多尝试100个端口
     private static final String WEB_ROOT = "web";
     private GameController gameController;
     private boolean running;
+    private int actualPort; // 实际使用的端口
     
     /**
      * 创建Web服务器
@@ -29,6 +31,7 @@ public class GameWebServer {
     public GameWebServer() {
         gameController = new GameController();
         running = false;
+        actualPort = DEFAULT_PORT;
     }
     
     /**
@@ -37,10 +40,41 @@ public class GameWebServer {
     public void start() {
         running = true;
         
-        try (ServerSocket serverSocket = new ServerSocket(PORT)) {
+        // 尝试从默认端口开始查找可用端口并直接创建 ServerSocket
+        ServerSocket serverSocket = null;
+        int port = DEFAULT_PORT;
+        
+        for (int attempt = 0; attempt < MAX_PORT_ATTEMPTS; attempt++) {
+            try {
+                serverSocket = new ServerSocket(port);
+                // 成功创建，跳出循环
+                break;
+            } catch (IOException e) {
+                // 端口被占用，尝试下一个端口
+                port++;
+                if (attempt == MAX_PORT_ATTEMPTS - 1) {
+                    System.err.println("错误: 无法找到可用端口（已尝试 " + MAX_PORT_ATTEMPTS + " 个端口，从 " + DEFAULT_PORT + " 到 " + port + "）");
+                    return;
+                }
+            }
+        }
+        
+        if (serverSocket == null) {
+            System.err.println("错误: 无法创建服务器套接字");
+            return;
+        }
+        
+        actualPort = port;
+        
+        // 如果使用的不是默认端口，提示用户
+        if (port != DEFAULT_PORT) {
+            System.out.println("提示: 端口 " + DEFAULT_PORT + " 已被占用，自动切换到端口 " + port);
+        }
+        
+        try {
             System.out.println("========================================");
             System.out.println("World of Zuul Web服务器已启动");
-            System.out.println("访问地址: http://localhost:" + PORT);
+            System.out.println("访问地址: http://localhost:" + port);
             System.out.println("========================================");
             System.out.println("按 Ctrl+C 停止服务器");
             System.out.println();
@@ -52,7 +86,24 @@ public class GameWebServer {
         } catch (IOException e) {
             System.err.println("服务器启动失败: " + e.getMessage());
             e.printStackTrace();
+        } finally {
+            // 确保关闭 ServerSocket
+            if (serverSocket != null && !serverSocket.isClosed()) {
+                try {
+                    serverSocket.close();
+                } catch (IOException e) {
+                    System.err.println("关闭服务器套接字时出错: " + e.getMessage());
+                }
+            }
         }
+    }
+    
+    /**
+     * 获取实际使用的端口号
+     * @return 端口号
+     */
+    public int getPort() {
+        return actualPort;
     }
     
     /**
@@ -149,10 +200,27 @@ public class GameWebServer {
             return;
         }
         
-        if (path.equals("/api/command") && method.equals("POST")) {
-            // 解析JSON（简单解析）
+        if (path.equals("/api/register") && method.equals("POST")) {
+            // 注册新用户
+            Map<String, String> request = JsonUtil.parseSimpleJson(requestBody);
+            String username = request != null ? request.get("username") : null;
+            String password = request != null ? request.get("password") : null;
+            
+            Map<String, Object> response = gameController.register(username, password);
+            out.println(JsonUtil.toJson(response));
+        } else if (path.equals("/api/login") && method.equals("POST")) {
+            // 用户登录
+            Map<String, String> request = JsonUtil.parseSimpleJson(requestBody);
+            String username = request != null ? request.get("username") : null;
+            String password = request != null ? request.get("password") : null;
+            
+            Map<String, Object> response = gameController.login(username, password);
+            out.println(JsonUtil.toJson(response));
+        } else if (path.equals("/api/command") && method.equals("POST")) {
+            // 执行游戏命令
             Map<String, String> request = JsonUtil.parseSimpleJson(requestBody);
             String command = request != null ? request.get("command") : null;
+            String sessionId = request != null ? request.get("sessionId") : null;
             
             if (command == null || command.isEmpty()) {
                 Map<String, Object> error = new HashMap<>();
@@ -160,12 +228,52 @@ public class GameWebServer {
                 error.put("message", "缺少命令参数");
                 out.println(JsonUtil.toJson(error));
             } else {
-                Map<String, Object> response = gameController.executeCommand(command);
+                Map<String, Object> response;
+                if (sessionId != null && !sessionId.isEmpty()) {
+                    response = gameController.executeCommand(command, sessionId);
+                } else {
+                    response = gameController.executeCommand(command);
+                }
                 out.println(JsonUtil.toJson(response));
             }
         } else if (path.equals("/api/status") && method.equals("GET")) {
-            Map<String, Object> status = gameController.getGameStatus();
+            // 获取游戏状态
+            String sessionId = getQueryParameter(path, "sessionId");
+            Map<String, Object> status;
+            if (sessionId != null && !sessionId.isEmpty()) {
+                status = gameController.getGameStatus(sessionId);
+            } else {
+                status = gameController.getGameStatus();
+            }
             out.println(JsonUtil.toJson(status));
+        } else if (path.equals("/api/save") && method.equals("POST")) {
+            // 保存游戏状态
+            Map<String, String> request = JsonUtil.parseSimpleJson(requestBody);
+            String sessionId = request != null ? request.get("sessionId") : null;
+            
+            if (sessionId == null || sessionId.isEmpty()) {
+                Map<String, Object> error = new HashMap<>();
+                error.put("success", false);
+                error.put("message", "缺少会话ID");
+                out.println(JsonUtil.toJson(error));
+            } else {
+                Map<String, Object> response = gameController.saveGame(sessionId);
+                out.println(JsonUtil.toJson(response));
+            }
+        } else if (path.equals("/api/load") && method.equals("POST")) {
+            // 加载游戏状态
+            Map<String, String> request = JsonUtil.parseSimpleJson(requestBody);
+            String sessionId = request != null ? request.get("sessionId") : null;
+            
+            if (sessionId == null || sessionId.isEmpty()) {
+                Map<String, Object> error = new HashMap<>();
+                error.put("success", false);
+                error.put("message", "缺少会话ID");
+                out.println(JsonUtil.toJson(error));
+            } else {
+                Map<String, Object> response = gameController.loadGame(sessionId);
+                out.println(JsonUtil.toJson(response));
+            }
         } else {
             Map<String, Object> error = new HashMap<>();
             error.put("success", false);
@@ -245,6 +353,25 @@ public class GameWebServer {
         } else {
             return "application/octet-stream";
         }
+    }
+    
+    /**
+     * 从URL中获取查询参数
+     */
+    private String getQueryParameter(String path, String paramName) {
+        int queryIndex = path.indexOf('?');
+        if (queryIndex == -1) {
+            return null;
+        }
+        String query = path.substring(queryIndex + 1);
+        String[] params = query.split("&");
+        for (String param : params) {
+            String[] parts = param.split("=");
+            if (parts.length == 2 && parts[0].equals(paramName)) {
+                return parts[1];
+            }
+        }
+        return null;
     }
     
     /**

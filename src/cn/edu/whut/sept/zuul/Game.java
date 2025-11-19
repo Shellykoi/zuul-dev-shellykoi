@@ -42,7 +42,7 @@ public class Game
         
         // 创建玩家，初始最大负重为10kg
         player = new Player("Player", 10.0);
-        player.setCurrentRoom(getStartingRoom());
+        player.setCurrentRoom(startingRoom);
     }
 
     /**
@@ -60,6 +60,9 @@ public class Game
         commandExecutors.put("drop", new DropCommand());
         commandExecutors.put("items", new ItemsCommand());
         commandExecutors.put("eat", new EatCookieCommand());
+        commandExecutors.put("status", new StatusCommand());
+        commandExecutors.put("save", new SaveCommand());
+        commandExecutors.put("load", new LoadCommand());
     }
 
     /**
@@ -141,16 +144,6 @@ public class Game
      * 起始房间，用于back命令判断是否到达起点。
      */
     private Room startingRoom;
-    
-    /**
-     * 获取起始房间。
-     * 
-     * @return 起始房间对象
-     */
-    private Room getStartingRoom()
-    {
-        return startingRoom;
-    }
 
     /**
      *  游戏主控循环，直到用户输入退出命令后结束整个程序.
@@ -249,5 +242,70 @@ public class Game
             return null;
         }
         return roomHistory.pop();
+    }
+    
+    /**
+     * 根据房间名称获取房间对象。
+     * 
+     * @param roomName 房间名称（简短描述）
+     * @return 房间对象，如果不存在则返回null
+     */
+    public Room getRoomByName(String roomName) {
+        if (allRoomsMap == null) {
+            return null;
+        }
+        // 遍历所有房间查找匹配的房间
+        for (Room room : allRoomsMap.values()) {
+            if (room.getShortDescription().equals(roomName)) {
+                return room;
+            }
+        }
+        return null;
+    }
+    
+    /**
+     * 在所有房间中查找指定名称的物品。
+     * 
+     * @param itemName 物品名称
+     * @return 物品对象，如果不存在则返回null
+     */
+    public Item findItemInAllRooms(String itemName) {
+        if (allRoomsMap == null) {
+            return null;
+        }
+        for (Room room : allRoomsMap.values()) {
+            Item item = room.getItem(itemName);
+            if (item != null) {
+                return item;
+            }
+        }
+        return null;
+    }
+    
+    /**
+     * 查找物品所在的房间。
+     * 
+     * @param itemName 物品名称
+     * @return 房间对象，如果物品不存在则返回null
+     */
+    public Room findItemRoom(String itemName) {
+        if (allRoomsMap == null) {
+            return null;
+        }
+        for (Room room : allRoomsMap.values()) {
+            if (room.getItem(itemName) != null) {
+                return room;
+            }
+        }
+        return null;
+    }
+    
+    /**
+     * 获取起始房间（公开方法）。
+     * 
+     * @return 起始房间对象
+     */
+    public Room getStartingRoom() {
+        return startingRoom;
     }
 }
