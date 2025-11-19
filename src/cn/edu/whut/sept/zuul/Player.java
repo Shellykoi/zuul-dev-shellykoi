@@ -223,13 +223,13 @@ public class Player
     public String getInventoryString()
     {
         if (inventory.isEmpty()) {
-            return "You are carrying nothing.";
+            return "你没有携带任何物品。";
         }
-        String returnString = "You are carrying:";
+        String returnString = "你携带的物品:";
         for (Item item : inventory.values()) {
             returnString += "\n  " + item.toString();
         }
-        returnString += "\nTotal weight: " + String.format("%.2f", getTotalWeight()) + 
+        returnString += "\n总重量: " + String.format("%.2f", getTotalWeight()) + 
                        "kg / " + String.format("%.2f", maxWeight) + "kg";
         return returnString;
     }

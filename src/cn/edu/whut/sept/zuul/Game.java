@@ -76,11 +76,11 @@ public class Game
         Room outside, theater, pub, lab, office, transporter;
 
         // create the rooms
-        outside = new Room("outside the main entrance of the university");
-        theater = new Room("in a lecture theater");
-        pub = new Room("in the campus pub");
-        lab = new Room("in a computing lab");
-        office = new Room("in the computing admin office");
+        outside = new Room("大学主入口外");
+        theater = new Room("演讲厅");
+        pub = new Room("校园酒吧");
+        lab = new Room("计算机实验室");
+        office = new Room("计算机管理办公室");
 
         // 创建所有房间的映射表（用于传输房间）
         allRoomsMap = new HashMap<>();
@@ -91,7 +91,7 @@ public class Game
         allRoomsMap.put("office", office);
 
         // 创建传输房间
-        transporter = new TransporterRoom("in a mysterious transporter room", allRoomsMap);
+        transporter = new TransporterRoom("一个神秘的传输房间", allRoomsMap);
         allRoomsMap.put("transporter", transporter);
 
         // initialise room exits
@@ -116,22 +116,22 @@ public class Game
         transporter.setExit("west", outside);
 
         // 添加物品到房间
-        outside.addItem(new Item("key", "a rusty old key", 0.1));
-        outside.addItem(new Item("map", "a campus map", 0.2));
+        outside.addItem(new Item("key", "一把生锈的旧钥匙", 0.1));
+        outside.addItem(new Item("map", "一张校园地图", 0.2));
         
-        theater.addItem(new Item("book", "a programming textbook", 1.5));
+        theater.addItem(new Item("book", "一本编程教科书", 1.5));
         
-        pub.addItem(new Item("coin", "a golden coin", 0.05));
-        pub.addItem(new Item("bottle", "an empty bottle", 0.3));
+        pub.addItem(new Item("coin", "一枚金币", 0.05));
+        pub.addItem(new Item("bottle", "一个空瓶子", 0.3));
         
-        lab.addItem(new Item("computer", "a laptop computer", 2.5));
-        lab.addItem(new Item("cable", "a USB cable", 0.1));
+        lab.addItem(new Item("computer", "一台笔记本电脑", 2.5));
+        lab.addItem(new Item("cable", "一根USB线", 0.1));
         
         // 在随机房间添加魔法饼干
         Random random = new Random();
         Room[] rooms = {outside, theater, pub, lab, office};
         Room cookieRoom = rooms[random.nextInt(rooms.length)];
-        cookieRoom.addItem(new Item("cookie", "a magic cookie that increases carrying capacity", 0.1));
+        cookieRoom.addItem(new Item("cookie", "一块可以增加负重的魔法饼干", 0.1));
         
         // 保存起始房间（用于back命令的起点判断）
         startingRoom = outside;
@@ -167,7 +167,7 @@ public class Game
             Command command = parser.getCommand();
             finished = processCommand(command);
         }
-        System.out.println("Thank you for playing.  Good bye.");
+        System.out.println("感谢游玩！再见！");
     }
 
     /**
@@ -176,9 +176,9 @@ public class Game
     private void printWelcome()
     {
         System.out.println();
-        System.out.println("Welcome to the World of Zuul!");
-        System.out.println("World of Zuul is a new, incredibly boring adventure game.");
-        System.out.println("Type 'help' if you need help.");
+        System.out.println("欢迎来到 World of Zuul！");
+        System.out.println("World of Zuul 是一款全新的文本冒险游戏。");
+        System.out.println("输入 'help' 查看帮助信息。");
         System.out.println();
         System.out.println(player.getCurrentRoom().getLongDescription());
     }
@@ -193,7 +193,7 @@ public class Game
     private boolean processCommand(Command command)
     {
         if (command.isUnknown()) {
-            System.out.println("I don't know what you mean...");
+            System.out.println("我不知道你在说什么...");
             return false;
         }
 
@@ -203,7 +203,7 @@ public class Game
         if (executor != null) {
             return executor.execute(command, this);
         } else {
-            System.out.println("I don't know what you mean...");
+            System.out.println("我不知道你在说什么...");
             return false;
         }
     }

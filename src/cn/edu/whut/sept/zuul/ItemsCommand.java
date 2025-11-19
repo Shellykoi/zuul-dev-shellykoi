@@ -23,14 +23,14 @@ public class ItemsCommand implements CommandExecutor
         Room currentRoom = player.getCurrentRoom();
 
         // 显示房间内的物品
-        System.out.println("Items in this room:");
+        System.out.println("房间内的物品:");
         String roomItems = currentRoom.getItemsString();
-        if (roomItems.isEmpty()) {
-            System.out.println("  (none)");
+        if (roomItems.isEmpty() || roomItems.equals("当前房间没有物品！")) {
+            System.out.println("  (无)");
         } else {
             System.out.println(roomItems);
         }
-        System.out.println("Total weight in room: " + 
+        System.out.println("房间总重量: " + 
                           String.format("%.2f", currentRoom.getTotalWeight()) + "kg");
 
         System.out.println();

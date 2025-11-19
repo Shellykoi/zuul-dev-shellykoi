@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>World of Zuul - 文本冒险游戏</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- 顶部导航栏 -->
+    <header class="navbar">
+        <div class="navbar-content">
+            <h1 class="game-title">⚔️ World of Zuul</h1>
+            <div class="game-status">
+                <span class="status-item" id="room-name">未知房间</span>
+                <span class="status-item" id="weight-info">负重: 0/10 kg</span>
+                <span class="status-item" id="item-count">物品: 0</span>
+            </div>
+            <button class="btn-exit" id="quit-btn" title="退出游戏">退出</button>
+        </div>
+    </header>
+
+    <!-- 主游戏区域 -->
+    <main class="game-container">
+        <!-- 游戏输出区域 -->
+        <section class="output-section">
+            <div class="output-header">
+                <h2>游戏日志</h2>
+                <button class="btn-clear" id="clear-btn" title="清空日志">清空</button>
+            </div>
+            <div class="output-area" id="output-area">
+                <div class="welcome-message">
+                    <p>欢迎来到 World of Zuul！</p>
+                    <p>这是一个文本冒险游戏。使用方向按钮或输入命令来探索世界。</p>
+                    <p>输入 'help' 查看所有可用命令。</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 命令输入区域 -->
+        <section class="input-section">
+            <div class="input-container">
+                <label for="command-input" class="input-label">请输入命令:</label>
+                <div class="input-wrapper">
+                    <input 
+                        type="text" 
+                        id="command-input" 
+                        class="command-input" 
+                        placeholder="输入命令，例如: go north, look, take key..."
+                        autocomplete="off"
+                    >
+                    <button class="btn-submit" id="submit-btn">执行</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 快速命令按钮区域 -->
+        <section class="buttons-section">
+            <div class="buttons-group">
+                <h3 class="buttons-title">方向移动</h3>
+                <div class="direction-buttons">
+                    <button class="btn-direction" id="btn-north" data-command="go north">↑ 北 (North)</button>
+                    <button class="btn-direction" id="btn-south" data-command="go south">↓ 南 (South)</button>
+                    <button class="btn-direction" id="btn-east" data-command="go east">→ 东 (East)</button>
+                    <button class="btn-direction" id="btn-west" data-command="go west">← 西 (West)</button>
+                </div>
+            </div>
+
+            <div class="buttons-group">
+                <h3 class="buttons-title">常用命令</h3>
+                <div class="action-buttons">
+                    <button class="btn-action" data-command="look">查看 (Look)</button>
+                    <button class="btn-action" data-command="back">返回 (Back)</button>
+                    <button class="btn-action" data-command="items">物品 (Items)</button>
+                    <button class="btn-action" data-command="help">帮助 (Help)</button>
+                </div>
+            </div>
+
+            <div class="buttons-group">
+                <h3 class="buttons-title">物品操作</h3>
+                <div class="item-buttons">
+                    <button class="btn-item" id="btn-take" data-command="take">拾取物品</button>
+                    <button class="btn-item" id="btn-drop" data-command="drop">丢弃物品</button>
+                    <button class="btn-item" data-command="eat cookie">吃饼干</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- 物品选择对话框（模态框） -->
+    <div class="modal" id="item-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-title">选择物品</h3>
+                <button class="modal-close" id="modal-close">&times;</button>
+            </div>
+            <div class="modal-body" id="modal-body">
+                <!-- 物品列表将动态插入这里 -->
+            </div>
+        </div>
+    </div>
+
+    <script src="game.js"></script>
+</body>
+</html>
+

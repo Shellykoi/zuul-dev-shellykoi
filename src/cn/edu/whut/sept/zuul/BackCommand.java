@@ -21,10 +21,10 @@ public class BackCommand implements CommandExecutor
     {
         Room previousRoom = game.getPreviousRoom();
         if (previousRoom == null) {
-            System.out.println("You are at the starting point. Cannot go back further.");
+            System.out.println("你已经回到了起点！");
         } else {
             game.getPlayer().setCurrentRoom(previousRoom);
-            System.out.println("You go back to the previous room.");
+            System.out.println("你返回到上一个房间。");
             System.out.println(previousRoom.getLongDescription());
         }
         return false;

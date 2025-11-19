@@ -19,10 +19,10 @@ public class HelpCommand implements CommandExecutor
     @Override
     public boolean execute(Command command, Game game)
     {
-        System.out.println("You are lost. You are alone. You wander");
-        System.out.println("around at the university.");
+        System.out.println("你迷路了。你独自一人。");
+        System.out.println("你在大学里四处游荡。");
         System.out.println();
-        System.out.println("Your command words are:");
+        System.out.println("你可以使用的命令:");
         game.getParser().showCommands();
         return false;
     }

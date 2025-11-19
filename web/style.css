@@ -1,0 +1,607 @@
+/* ============================================
+   World of Zuul - 经典像素风格样式表
+   设计理念：深色背景、等宽字体、复古游戏风格
+   ============================================ */
+
+/* 全局样式重置和基础设置 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    /* 颜色主题 - 经典像素风格 */
+    --bg-primary: #1a1a1a;        /* 主背景色 - 深灰黑 */
+    --bg-secondary: #2d2d2d;       /* 次要背景色 - 深灰 */
+    --bg-tertiary: #3a3a3a;        /* 第三背景色 - 中灰 */
+    --text-primary: #e0e0e0;       /* 主文字色 - 浅灰白 */
+    --text-secondary: #b0b0b0;     /* 次要文字色 - 中灰 */
+    --text-accent: #ffd700;        /* 强调色 - 金色 */
+    --text-warning: #ff6b6b;        /* 警告色 - 红色 */
+    --border-color: #555555;       /* 边框色 - 深灰 */
+    --button-bg: #4a4a4a;          /* 按钮背景 - 中灰 */
+    --button-hover: #5a5a5a;       /* 按钮悬停 - 亮灰 */
+    --button-active: #3a3a3a;      /* 按钮按下 - 暗灰 */
+    --shadow: rgba(0, 0, 0, 0.5);   /* 阴影 */
+}
+
+body {
+    font-family: 'Courier New', 'Monaco', 'Consolas', monospace;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    line-height: 1.6;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* ============================================
+   顶部导航栏样式
+   ============================================ */
+.navbar {
+    background: linear-gradient(135deg, #2d2d2d 0%, #1a1a1a 100%);
+    border-bottom: 3px solid var(--border-color);
+    box-shadow: 0 4px 8px var(--shadow);
+    padding: 15px 20px;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.navbar-content {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.game-title {
+    font-size: 1.8rem;
+    color: var(--text-accent);
+    text-shadow: 2px 2px 4px var(--shadow);
+    letter-spacing: 2px;
+    font-weight: bold;
+}
+
+.game-status {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.status-item {
+    background: var(--bg-tertiary);
+    padding: 8px 15px;
+    border-radius: 5px;
+    border: 1px solid var(--border-color);
+    font-size: 0.9rem;
+    color: var(--text-primary);
+    box-shadow: inset 0 2px 4px var(--shadow);
+}
+
+.btn-exit {
+    background: var(--text-warning);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.9rem;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px var(--shadow);
+}
+
+.btn-exit:hover {
+    background: #ff5252;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px var(--shadow);
+}
+
+.btn-exit:active {
+    transform: translateY(0);
+}
+
+/* ============================================
+   主游戏容器
+   ============================================ */
+.game-container {
+    flex: 1;
+    max-width: 1400px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* ============================================
+   游戏输出区域
+   ============================================ */
+.output-section {
+    flex: 1;
+    background: var(--bg-secondary);
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    box-shadow: inset 0 2px 8px var(--shadow);
+    display: flex;
+    flex-direction: column;
+    min-height: 400px;
+    max-height: 600px;
+}
+
+.output-header {
+    background: var(--bg-tertiary);
+    padding: 10px 15px;
+    border-bottom: 2px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.output-header h2 {
+    font-size: 1.2rem;
+    color: var(--text-accent);
+    text-shadow: 1px 1px 2px var(--shadow);
+}
+
+.btn-clear {
+    background: var(--button-bg);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    padding: 5px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.85rem;
+    transition: all 0.2s ease;
+}
+
+.btn-clear:hover {
+    background: var(--button-hover);
+}
+
+.output-area {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+    font-size: 0.95rem;
+    line-height: 1.8;
+    background: #0f0f0f;
+    color: #d0d0d0;
+}
+
+/* 自定义滚动条样式 */
+.output-area::-webkit-scrollbar {
+    width: 12px;
+}
+
+.output-area::-webkit-scrollbar-track {
+    background: var(--bg-primary);
+}
+
+.output-area::-webkit-scrollbar-thumb {
+    background: var(--bg-tertiary);
+    border-radius: 6px;
+    border: 2px solid var(--bg-primary);
+}
+
+.output-area::-webkit-scrollbar-thumb:hover {
+    background: var(--button-hover);
+}
+
+/* 输出消息样式 */
+.output-message {
+    margin-bottom: 10px;
+    padding: 8px 0;
+    border-bottom: 1px dotted rgba(255, 255, 255, 0.1);
+    animation: fadeIn 0.3s ease;
+}
+
+.output-message:last-child {
+    border-bottom: none;
+}
+
+.output-message.user-command {
+    color: var(--text-accent);
+    font-weight: bold;
+}
+
+.output-message.game-response {
+    color: var(--text-primary);
+}
+
+.output-message.error {
+    color: var(--text-warning);
+}
+
+.output-message.success {
+    color: #4caf50;
+}
+
+.welcome-message {
+    color: var(--text-accent);
+    font-size: 1.1rem;
+    line-height: 2;
+}
+
+.welcome-message p {
+    margin-bottom: 10px;
+}
+
+/* 淡入动画 */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ============================================
+   命令输入区域
+   ============================================ */
+.input-section {
+    background: var(--bg-secondary);
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    padding: 15px;
+    box-shadow: 0 2px 8px var(--shadow);
+}
+
+.input-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.input-label {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    font-weight: bold;
+}
+
+.input-wrapper {
+    display: flex;
+    gap: 10px;
+}
+
+.command-input {
+    flex: 1;
+    background: var(--bg-primary);
+    border: 2px solid var(--border-color);
+    border-radius: 5px;
+    padding: 12px 15px;
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.command-input:focus {
+    outline: none;
+    border-color: var(--text-accent);
+    box-shadow: 0 0 8px rgba(255, 215, 0, 0.3);
+}
+
+.command-input::placeholder {
+    color: var(--text-secondary);
+}
+
+.btn-submit {
+    background: var(--text-accent);
+    color: var(--bg-primary);
+    border: none;
+    padding: 12px 30px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px var(--shadow);
+    min-width: 100px;
+}
+
+.btn-submit:hover {
+    background: #ffed4e;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px var(--shadow);
+}
+
+.btn-submit:active {
+    transform: translateY(0);
+}
+
+/* ============================================
+   快速命令按钮区域
+   ============================================ */
+.buttons-section {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+.buttons-group {
+    background: var(--bg-secondary);
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    padding: 15px;
+    box-shadow: 0 2px 8px var(--shadow);
+}
+
+.buttons-title {
+    font-size: 1rem;
+    color: var(--text-accent);
+    margin-bottom: 12px;
+    text-align: center;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 8px;
+}
+
+.direction-buttons,
+.action-buttons,
+.item-buttons {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+}
+
+/* 方向按钮样式 */
+.btn-direction {
+    background: var(--button-bg);
+    color: var(--text-primary);
+    border: 2px solid var(--border-color);
+    padding: 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.9rem;
+    font-weight: bold;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px var(--shadow);
+    position: relative;
+}
+
+.btn-direction:hover:not(:disabled) {
+    background: var(--button-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px var(--shadow);
+}
+
+.btn-direction:active:not(:disabled) {
+    transform: translateY(0);
+    box-shadow: 0 1px 2px var(--shadow);
+}
+
+.btn-direction:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    background: var(--bg-tertiary);
+}
+
+/* 动作按钮样式 */
+.btn-action {
+    background: var(--button-bg);
+    color: var(--text-primary);
+    border: 2px solid var(--border-color);
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.85rem;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px var(--shadow);
+}
+
+.btn-action:hover {
+    background: var(--button-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px var(--shadow);
+}
+
+.btn-action:active {
+    transform: translateY(0);
+}
+
+/* 物品操作按钮样式 */
+.btn-item {
+    background: #4a7c59;
+    color: white;
+    border: 2px solid #5a8c69;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.85rem;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px var(--shadow);
+}
+
+.btn-item:hover {
+    background: #5a8c69;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px var(--shadow);
+}
+
+.btn-item:active {
+    transform: translateY(0);
+}
+
+/* ============================================
+   模态框样式（物品选择对话框）
+   ============================================ */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 2000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    animation: fadeIn 0.3s ease;
+}
+
+.modal.show {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background: var(--bg-secondary);
+    border: 3px solid var(--border-color);
+    border-radius: 10px;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 8px 16px var(--shadow);
+    animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+    from {
+        transform: translateY(-50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.modal-header {
+    background: var(--bg-tertiary);
+    padding: 15px 20px;
+    border-bottom: 2px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header h3 {
+    color: var(--text-accent);
+    font-size: 1.2rem;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    color: var(--text-primary);
+    font-size: 2rem;
+    cursor: pointer;
+    line-height: 1;
+    transition: color 0.2s ease;
+}
+
+.modal-close:hover {
+    color: var(--text-warning);
+}
+
+.modal-body {
+    padding: 20px;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.item-list {
+    list-style: none;
+}
+
+.item-list-item {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    padding: 12px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.item-list-item:hover {
+    background: var(--button-hover);
+    border-color: var(--text-accent);
+    transform: translateX(5px);
+}
+
+.item-list-item:active {
+    transform: translateX(0);
+}
+
+.item-list-item strong {
+    color: var(--text-accent);
+}
+
+.item-list-item .item-desc {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin-top: 5px;
+}
+
+/* ============================================
+   响应式设计
+   ============================================ */
+@media (max-width: 768px) {
+    .navbar-content {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .game-status {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .game-container {
+        padding: 10px;
+    }
+
+    .buttons-section {
+        grid-template-columns: 1fr;
+    }
+
+    .direction-buttons,
+    .action-buttons,
+    .item-buttons {
+        grid-template-columns: 1fr;
+    }
+
+    .output-section {
+        min-height: 300px;
+        max-height: 400px;
+    }
+
+    .input-wrapper {
+        flex-direction: column;
+    }
+
+    .btn-submit {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .game-title {
+        font-size: 1.4rem;
+    }
+
+    .status-item {
+        font-size: 0.8rem;
+        padding: 6px 10px;
+    }
+
+    .output-area {
+        font-size: 0.85rem;
+        padding: 15px;
+    }
+}
+

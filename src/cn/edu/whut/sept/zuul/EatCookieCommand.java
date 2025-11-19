@@ -23,15 +23,15 @@ public class EatCookieCommand implements CommandExecutor
         
         // 检查命令参数是否为"cookie"
         if (!command.hasSecondWord() || !command.getSecondWord().equals("cookie")) {
-            System.out.println("Eat what? (Try 'eat cookie')");
+            System.out.println("吃什么？（试试 'eat cookie'）");
             return false;
         }
 
         // 检查玩家是否携带魔法饼干
         Item cookie = player.getItem("cookie");
         if (cookie == null) {
-            System.out.println("You don't have a magic cookie!");
-            System.out.println("Look for a magic cookie in the rooms. It might be hidden somewhere...");
+            System.out.println("你没有魔法饼干！");
+            System.out.println("在房间里找找魔法饼干，它可能藏在某个地方...");
             return false;
         }
 
@@ -39,11 +39,9 @@ public class EatCookieCommand implements CommandExecutor
         player.dropItem("cookie");
         double weightIncrease = 5.0;  // 增加5kg负重
         player.increaseMaxWeight(weightIncrease);
-        System.out.println("You eat the magic cookie!");
-        System.out.println("Your maximum carrying capacity increased by " + 
-                          weightIncrease + "kg!");
-        System.out.println("New maximum weight: " + 
-                          String.format("%.2f", player.getMaxWeight()) + "kg");
+        System.out.println("你吃掉了魔法饼干！");
+        System.out.println("你的最大负重增加了 " + weightIncrease + "kg！");
+        System.out.println("新的最大负重: " + String.format("%.2f", player.getMaxWeight()) + "kg");
         return false;
     }
 }

@@ -21,7 +21,7 @@ public class GoCommand implements CommandExecutor
     public boolean execute(Command command, Game game)
     {
         if (!command.hasSecondWord()) {
-            System.out.println("Go where?");
+            System.out.println("去哪里？");
             return false;
         }
 
@@ -33,7 +33,7 @@ public class GoCommand implements CommandExecutor
         Room nextRoom = currentRoom.getExit(direction);
 
         if (nextRoom == null) {
-            System.out.println("There is no door!");
+            System.out.println("那里没有门！");
         } else {
             // 记录房间历史（用于back命令）
             game.addRoomToHistory(currentRoom);
@@ -44,8 +44,8 @@ public class GoCommand implements CommandExecutor
                 TransporterRoom transporter = (TransporterRoom) nextRoom;
                 Room randomRoom = transporter.getRandomRoom();
                 if (randomRoom != null) {
-                    System.out.println("You step into a mysterious transporter room...");
-                    System.out.println("Suddenly, you are teleported to another location!");
+                    System.out.println("你踏入了一个神秘的传输房间...");
+                    System.out.println("突然，你被传送到另一个位置！");
                     player.setCurrentRoom(randomRoom);
                 }
             }

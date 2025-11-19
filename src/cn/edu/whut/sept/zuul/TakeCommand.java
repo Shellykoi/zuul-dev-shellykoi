@@ -20,7 +20,7 @@ public class TakeCommand implements CommandExecutor
     public boolean execute(Command command, Game game)
     {
         if (!command.hasSecondWord()) {
-            System.out.println("Take what?");
+            System.out.println("拾取什么？");
             return false;
         }
 
@@ -31,14 +31,14 @@ public class TakeCommand implements CommandExecutor
         // 从房间中获取物品
         Item item = currentRoom.getItem(itemName);
         if (item == null) {
-            System.out.println("There is no " + itemName + " in this room.");
+            System.out.println("这里没有 " + itemName + "！");
             return false;
         }
 
         // 检查是否可以携带
         if (!player.canCarry(item)) {
-            System.out.println("The " + itemName + " is too heavy! You cannot carry it.");
-            System.out.println("Your current weight: " + String.format("%.2f", player.getTotalWeight()) + 
+            System.out.println(itemName + " 太重了！你无法携带它。");
+            System.out.println("你当前的负重: " + String.format("%.2f", player.getTotalWeight()) + 
                            "kg / " + String.format("%.2f", player.getMaxWeight()) + "kg");
             return false;
         }
@@ -46,7 +46,7 @@ public class TakeCommand implements CommandExecutor
         // 拾取物品
         currentRoom.removeItem(itemName);
         player.takeItem(item);
-        System.out.println("You take the " + itemName + ".");
+        System.out.println("你拾取了 " + itemName + "。");
         return false;
     }
 }

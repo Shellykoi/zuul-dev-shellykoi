@@ -70,7 +70,7 @@ public class Room
      */
     public String getLongDescription()
     {
-        String returnString = "You are " + description + ".\n" + getExitString();
+        String returnString = "你在" + description + "。\n" + getExitString();
         String itemsString = getItemsString();
         if (!itemsString.isEmpty()) {
             returnString += "\n" + itemsString;
@@ -86,12 +86,27 @@ public class Room
      */
     private String getExitString()
     {
-        String returnString = "Exits:";
+        String returnString = "出口:";
         Set<String> keys = exits.keySet();
         for(String exit : keys) {
-            returnString += " " + exit;
+            // 将方向翻译为中文
+            String directionCN = translateDirection(exit);
+            returnString += " " + directionCN;
         }
         return returnString;
+    }
+    
+    /**
+     * 将方向翻译为中文
+     */
+    private String translateDirection(String direction) {
+        switch(direction.toLowerCase()) {
+            case "north": return "北";
+            case "south": return "南";
+            case "east": return "东";
+            case "west": return "西";
+            default: return direction;
+        }
     }
 
     /**
@@ -156,9 +171,9 @@ public class Room
     public String getItemsString()
     {
         if (items.isEmpty()) {
-            return "";
+            return "当前房间没有物品！";
         }
-        String returnString = "Items:";
+        String returnString = "物品:";
         for (Item item : items.values()) {
             returnString += "\n  " + item.toString();
         }

@@ -20,7 +20,7 @@ public class DropCommand implements CommandExecutor
     public boolean execute(Command command, Game game)
     {
         if (!command.hasSecondWord()) {
-            System.out.println("Drop what?");
+            System.out.println("丢弃什么？");
             return false;
         }
 
@@ -31,14 +31,14 @@ public class DropCommand implements CommandExecutor
         // 检查玩家是否携带该物品
         Item item = player.getItem(itemName);
         if (item == null) {
-            System.out.println("You don't have a " + itemName + ".");
+            System.out.println("你没有 " + itemName + "！");
             return false;
         }
 
         // 丢弃物品到房间
         player.dropItem(itemName);
         currentRoom.addItem(item);
-        System.out.println("You drop the " + itemName + ".");
+        System.out.println("你丢弃了 " + itemName + "。");
         return false;
     }
 }
