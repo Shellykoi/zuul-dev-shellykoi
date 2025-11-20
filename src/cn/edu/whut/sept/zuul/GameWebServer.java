@@ -200,23 +200,31 @@ public class GameWebServer {
             return;
         }
         
-        if (path.equals("/api/register") && method.equals("POST")) {
-            // 注册新用户
-            Map<String, String> request = JsonUtil.parseSimpleJson(requestBody);
-            String username = request != null ? request.get("username") : null;
-            String password = request != null ? request.get("password") : null;
-            
-            Map<String, Object> response = gameController.register(username, password);
-            out.println(JsonUtil.toJson(response));
-        } else if (path.equals("/api/login") && method.equals("POST")) {
-            // 用户登录
-            Map<String, String> request = JsonUtil.parseSimpleJson(requestBody);
-            String username = request != null ? request.get("username") : null;
-            String password = request != null ? request.get("password") : null;
-            
-            Map<String, Object> response = gameController.login(username, password);
-            out.println(JsonUtil.toJson(response));
-        } else if (path.equals("/api/command") && method.equals("POST")) {
+        // 提取路径部分（去掉查询参数）
+        String pathOnly = path;
+        int queryIndex = path.indexOf('?');
+        if (queryIndex != -1) {
+            pathOnly = path.substring(0, queryIndex);
+        }
+        
+        try {
+            if (pathOnly.equals("/api/register") && method.equals("POST")) {
+                // 注册新用户
+                Map<String, String> request = JsonUtil.parseSimpleJson(requestBody);
+                String username = request != null ? request.get("username") : null;
+                String password = request != null ? request.get("password") : null;
+                
+                Map<String, Object> response = gameController.register(username, password);
+                out.println(JsonUtil.toJson(response));
+            } else if (pathOnly.equals("/api/login") && method.equals("POST")) {
+                // 用户登录
+                Map<String, String> request = JsonUtil.parseSimpleJson(requestBody);
+                String username = request != null ? request.get("username") : null;
+                String password = request != null ? request.get("password") : null;
+                
+                Map<String, Object> response = gameController.login(username, password);
+                out.println(JsonUtil.toJson(response));
+        } else if (pathOnly.equals("/api/command") && method.equals("POST")) {
             // 执行游戏命令
             Map<String, String> request = JsonUtil.parseSimpleJson(requestBody);
             String command = request != null ? request.get("command") : null;
@@ -236,7 +244,7 @@ public class GameWebServer {
                 }
                 out.println(JsonUtil.toJson(response));
             }
-        } else if (path.equals("/api/status") && method.equals("GET")) {
+        } else if (pathOnly.equals("/api/status") && method.equals("GET")) {
             // 获取游戏状态
             String sessionId = getQueryParameter(path, "sessionId");
             Map<String, Object> status;
@@ -246,7 +254,7 @@ public class GameWebServer {
                 status = gameController.getGameStatus();
             }
             out.println(JsonUtil.toJson(status));
-        } else if (path.equals("/api/save") && method.equals("POST")) {
+        } else if (pathOnly.equals("/api/save") && method.equals("POST")) {
             // 保存游戏状态
             Map<String, String> request = JsonUtil.parseSimpleJson(requestBody);
             String sessionId = request != null ? request.get("sessionId") : null;
@@ -260,7 +268,7 @@ public class GameWebServer {
                 Map<String, Object> response = gameController.saveGame(sessionId);
                 out.println(JsonUtil.toJson(response));
             }
-        } else if (path.equals("/api/load") && method.equals("POST")) {
+        } else if (pathOnly.equals("/api/load") && method.equals("POST")) {
             // 加载游戏状态
             Map<String, String> request = JsonUtil.parseSimpleJson(requestBody);
             String sessionId = request != null ? request.get("sessionId") : null;
@@ -278,6 +286,15 @@ public class GameWebServer {
             Map<String, Object> error = new HashMap<>();
             error.put("success", false);
             error.put("message", "未知的API端点");
+            out.println(JsonUtil.toJson(error));
+        }
+        } catch (Exception e) {
+            // 捕获所有异常，确保返回有效的JSON响应
+            System.err.println("处理API请求时出错: " + e.getMessage());
+            e.printStackTrace();
+            Map<String, Object> error = new HashMap<>();
+            error.put("success", false);
+            error.put("message", "服务器内部错误: " + e.getMessage());
             out.println(JsonUtil.toJson(error));
         }
         

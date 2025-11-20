@@ -42,34 +42,109 @@ public class DatabaseManager {
      * 初始化数据库连接和表结构
      */
     private void initializeDatabase() {
+        System.out.println("\n========================================");
+        System.out.println("正在初始化数据库连接...");
+        System.out.println("========================================");
+        
         try {
             // 加载MySQL驱动
+            System.out.println("步骤1: 加载MySQL驱动...");
             Class.forName("com.mysql.cj.jdbc.Driver");
+            System.out.println("✅ MySQL驱动加载成功");
             
             // 先连接到MySQL服务器（不指定数据库）
+            System.out.println("步骤2: 连接MySQL服务器...");
             Connection serverConnection = DriverManager.getConnection(
                 "jdbc:mysql://localhost:3306?useSSL=false&serverTimezone=UTC&characterEncoding=UTF-8",
                 DB_USER, DB_PASSWORD);
+            System.out.println("✅ MySQL服务器连接成功");
             
             // 创建数据库（如果不存在）
+            System.out.println("步骤3: 检查/创建数据库 'zuul_game'...");
             Statement stmt = serverConnection.createStatement();
             stmt.executeUpdate("CREATE DATABASE IF NOT EXISTS zuul_game CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
             stmt.close();
             serverConnection.close();
+            System.out.println("✅ 数据库 'zuul_game' 已就绪");
             
             // 连接到zuul_game数据库
+            System.out.println("步骤4: 连接到数据库 'zuul_game'...");
             connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+            System.out.println("✅ 数据库连接成功");
             
             // 创建表结构
+            System.out.println("步骤5: 检查/创建数据库表...");
             createTables();
+            System.out.println("✅ 数据库表已就绪");
             
-            System.out.println("数据库连接成功！");
+            // 检查现有数据
+            System.out.println("步骤6: 检查数据库数据...");
+            checkDatabaseData();
+            
+            System.out.println("========================================");
+            System.out.println("数据库初始化完成！");
+            System.out.println("========================================");
         } catch (ClassNotFoundException e) {
-            System.err.println("MySQL驱动未找到！请确保已添加mysql-connector-java依赖。");
+            System.err.println("\n❌ MySQL驱动未找到！");
+            System.err.println("请确保已添加mysql-connector-java依赖到classpath");
+            System.err.println("例如: java -cp \"bin;lib\\mysql-connector-j-9.5.0.jar\" ...");
             e.printStackTrace();
         } catch (SQLException e) {
-            System.err.println("数据库连接失败: " + e.getMessage());
+            System.err.println("\n❌ 数据库连接失败！");
+            System.err.println("错误信息: " + e.getMessage());
+            System.err.println("错误代码: " + e.getErrorCode());
+            System.err.println("\n请检查：");
+            System.err.println("1. MySQL服务是否正在运行");
+            System.err.println("2. 用户名和密码是否正确（当前: " + DB_USER + "）");
+            System.err.println("3. MySQL是否允许本地连接");
             e.printStackTrace();
+        }
+    }
+    
+    /**
+     * 检查数据库中的数据并输出统计信息
+     */
+    private void checkDatabaseData() {
+        try {
+            // 检查用户数量
+            Statement stmt = connection.createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT COUNT(*) as count FROM users");
+            rs.next();
+            int userCount = rs.getInt("count");
+            rs.close();
+            
+            if (userCount > 0) {
+                System.out.println("  - 用户数量: " + userCount);
+            } else {
+                System.out.println("  - 用户数量: 0 (需要通过注册功能创建用户)");
+            }
+            
+            // 检查游戏记录数量
+            rs = stmt.executeQuery("SELECT COUNT(*) as count FROM game_records");
+            rs.next();
+            int recordCount = rs.getInt("count");
+            rs.close();
+            
+            if (recordCount > 0) {
+                System.out.println("  - 游戏记录: " + recordCount);
+            } else {
+                System.out.println("  - 游戏记录: 0 (游戏记录会在用户开始游戏时创建)");
+            }
+            
+            // 检查玩家状态数量
+            rs = stmt.executeQuery("SELECT COUNT(*) as count FROM player_states");
+            rs.next();
+            int stateCount = rs.getInt("count");
+            rs.close();
+            stmt.close();
+            
+            if (stateCount > 0) {
+                System.out.println("  - 玩家状态: " + stateCount);
+            } else {
+                System.out.println("  - 玩家状态: 0 (玩家状态会在保存游戏时创建)");
+            }
+        } catch (SQLException e) {
+            System.out.println("  ⚠️  无法检查数据统计: " + e.getMessage());
         }
     }
     
@@ -153,6 +228,27 @@ public class DatabaseManager {
             }
             e.printStackTrace();
             return false;
+        }
+    }
+
+    /**
+     * 注册用户并返回失败原因（null 表示成功）
+     */
+    public String registerUserWithMessage(String username, String password) {
+        try {
+            String sql = "INSERT INTO users (username, password) VALUES (?, ?)";
+            PreparedStatement pstmt = connection.prepareStatement(sql);
+            pstmt.setString(1, username);
+            pstmt.setString(2, password); // 实际应用中应该加密
+            int result = pstmt.executeUpdate();
+            pstmt.close();
+            return result > 0 ? null : "注册失败";
+        } catch (SQLException e) {
+            if (e.getErrorCode() == 1062) {
+                return "用户名已存在";
+            }
+            e.printStackTrace();
+            return "数据库错误：" + e.getMessage();
         }
     }
     

@@ -8,6 +8,7 @@
 package cn.edu.whut.sept.zuul;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -81,9 +82,9 @@ public class GameController {
             response.put("message", "用户名已存在");
             return response;
         }
-        
-        boolean success = dbManager.registerUser(username, password);
-        if (success) {
+
+        String registerError = dbManager.registerUserWithMessage(username, password);
+        if (registerError == null) {
             // 注册成功后自动登录
             Integer userId = dbManager.loginUser(username, password);
             if (userId != null) {
@@ -99,7 +100,7 @@ public class GameController {
             }
         } else {
             response.put("success", false);
-            response.put("message", "注册失败");
+            response.put("message", registerError);
         }
         
         return response;
@@ -226,7 +227,19 @@ public class GameController {
             GameCompletionChecker.CompletionInfo info = 
                 GameCompletionChecker.checkCompletion(player);
             response.put("completed", info.isCompleted());
-            response.put("progress", info);
+            
+            // 将CompletionInfo转换为Map以便JSON序列化
+            Map<String, Object> progressMap = new HashMap<>();
+            progressMap.put("completed", info.isCompleted());
+            progressMap.put("atStartRoom", info.isAtStartRoom());
+            progressMap.put("roomsExplored", info.getRoomsExplored());
+            progressMap.put("totalRooms", info.getTotalRooms());
+            progressMap.put("allRoomsExplored", info.isAllRoomsExplored());
+            progressMap.put("itemsCollected", info.getItemsCollected());
+            progressMap.put("totalItems", info.getTotalItems());
+            progressMap.put("allItemsCollected", info.isAllItemsCollected());
+            progressMap.put("cookieEaten", info.isCookieEaten());
+            response.put("progress", progressMap);
             
             response.put("success", true);
             response.put("message", output);
@@ -360,6 +373,16 @@ public class GameController {
             output.append("我不知道你在说什么...");
         }
         
+        // 附加进度提示，便于玩家了解通关进度
+        GameCompletionChecker.CompletionInfo info = GameCompletionChecker.checkCompletion(player);
+        output.append("\n\n进度：房间 ")
+              .append(info.getRoomsExplored()).append("/").append(info.getTotalRooms())
+              .append("  物品 ").append(info.getItemsCollected()).append("/").append(info.getTotalItems())
+              .append("  饼干:").append(info.isCookieEaten() ? "已吃" : "未吃")
+              .append("  位置:").append(info.isAtStartRoom() ? "起始房间" : "其他房间");
+        if (info.isCompleted()) {
+            output.append("\n🎉 恭喜！你已完成所有任务，游戏通关！");
+        }
         return output.toString();
     }
     
@@ -465,13 +488,18 @@ public class GameController {
         
         // 房间物品
         List<Map<String, Object>> roomItems = new ArrayList<>();
-        for (Item item : currentRoom.getItems()) {
+        Collection<Item> items = currentRoom.getItems();
+        // 调试：输出房间物品信息
+        System.out.println("DEBUG: 房间 '" + currentRoom.getShortDescription() + "' 的物品数量: " + items.size());
+        for (Item item : items) {
+            System.out.println("DEBUG: 找到物品: " + item.getName() + " (" + item.getDescription() + ")");
             Map<String, Object> itemInfo = new HashMap<>();
             itemInfo.put("name", item.getName());
             itemInfo.put("description", item.getDescription());
             itemInfo.put("weight", item.getWeight());
             roomItems.add(itemInfo);
         }
+        System.out.println("DEBUG: 返回的物品数组大小: " + roomItems.size());
         roomInfo.put("items", roomItems);
         
         status.put("currentRoom", roomInfo);
