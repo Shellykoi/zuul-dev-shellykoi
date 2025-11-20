@@ -283,6 +283,7 @@ public class GameController {
                     if (randomRoom != null) {
                         output.append("你踏入了一个神秘的传输房间...\n");
                         output.append("突然，你被传送到另一个位置！\n");
+                        // 传输房间已经被记录，现在记录目标房间
                         player.setCurrentRoom(randomRoom);
                     }
                 }
@@ -352,7 +353,8 @@ public class GameController {
             if (cookie == null) {
                 output.append("你没有魔法饼干！");
             } else {
-                player.dropItem("cookie");
+                // 使用eatCookie方法，它会自动设置cookieEaten标志并移除物品
+                player.eatCookie();
                 player.increaseMaxWeight(5.0);
                 output.append("你吃掉了魔法饼干。你的负重能力增加了5kg！\n");
                 output.append("新的最大负重: ").append(String.format("%.2f", player.getMaxWeight())).append("kg");
@@ -535,6 +537,10 @@ public class GameController {
         completion.put("cookieEaten", completionInfo.isCookieEaten());
         completion.put("atStartRoom", completionInfo.isAtStartRoom());
         status.put("completion", completion);
+        
+        // 已访问的房间列表
+        List<String> visitedRoomsList = new ArrayList<>(player.getRoomsVisited());
+        playerInfo.put("visitedRooms", visitedRoomsList);
         
         return status;
     }

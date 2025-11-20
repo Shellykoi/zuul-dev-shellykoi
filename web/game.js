@@ -4,7 +4,8 @@
  */
 
 // API基础URL（可变）。会按候选端口自动探测后端，以应对端口自动切换
-let API_BASE_URL = `${window.location.origin}/api`;
+// 注意：这里不包含/api，因为buildApiUrl会自动添加
+let API_BASE_URL = window.location.origin;
 let apiBaseUrlResolved = false;
 let apiBaseUrlPromise = null;
 
@@ -45,8 +46,9 @@ async function resolveApiBaseUrl() {
                 const controller = new AbortController();
                 const timeout = setTimeout(() => controller.abort(), 2000); // 增加超时时间到2秒
                 
-                console.log(`尝试连接: ${base}/api/status`);
-                const resp = await fetch(`${base}/api/status`, { 
+                const statusUrl = `${base}/api/status`;
+                console.log(`🔍 尝试连接: ${statusUrl}`);
+                const resp = await fetch(statusUrl, { 
                     method: 'GET', 
                     signal: controller.signal,
                     headers: {
@@ -64,7 +66,8 @@ async function resolveApiBaseUrl() {
                             const data = await resp.json();
                             // 检查响应是否包含我们API的特征字段（如success, message等）
                             if (data && (data.hasOwnProperty('success') || data.hasOwnProperty('message') || data.hasOwnProperty('currentRoom'))) {
-                                API_BASE_URL = `${base}/api`;
+                                // 返回base URL（不包含/api），因为buildApiUrl会自动添加
+                                API_BASE_URL = base;
                                 apiBaseUrlResolved = true;
                                 console.log('✅ API 基础地址已确定为:', API_BASE_URL);
                                 return API_BASE_URL;
@@ -103,24 +106,34 @@ async function resolveApiBaseUrl() {
  */
 async function buildApiUrl(endpoint) {
     const base = await resolveApiBaseUrl();
-    console.log('构建API URL，base:', base, 'endpoint:', endpoint);
+    console.log('🔗 构建API URL，base:', base, 'endpoint:', endpoint);
     
     if (!base) {
         throw new Error('无法确定API服务器地址');
     }
     
+    // 规范化base URL：去除末尾斜杠，并确保不包含/api
+    let normalizedBase = base.trim();
+    if (normalizedBase.endsWith('/')) {
+        normalizedBase = normalizedBase.substring(0, normalizedBase.length - 1);
+    }
+    // 如果base已经包含/api，移除它（因为resolveApiBaseUrl应该返回不包含/api的base）
+    if (normalizedBase.endsWith('/api')) {
+        normalizedBase = normalizedBase.substring(0, normalizedBase.length - 4);
+    }
+    
     // 确保endpoint不以斜杠开头
     const cleanEndpoint = endpoint.startsWith('/') ? endpoint.substring(1) : endpoint;
     
-    // 如果base以/api结尾，直接拼接
-    if (base.endsWith('/api')) {
-        return `${base}/${cleanEndpoint}`;
-    } else if (base.endsWith('/api/')) {
-        return `${base}${cleanEndpoint}`;
-    } else {
-        // 如果base不包含/api，添加它
-        return `${base}/api/${cleanEndpoint}`;
-    }
+    // 构建最终URL：base + /api/ + endpoint
+    const finalUrl = `${normalizedBase}/api/${cleanEndpoint}`;
+    
+    console.log('✅ 构建的API URL:', finalUrl);
+    console.log('   规范化base:', normalizedBase);
+    console.log('   清理后的endpoint:', cleanEndpoint);
+    console.log('   完整URL结构:', `${normalizedBase} + /api/ + ${cleanEndpoint}`);
+    
+    return finalUrl;
 }
 
 // 游戏状态
@@ -130,7 +143,9 @@ let gameState = {
     isLoading: false,
     sessionId: null,
     username: null,
-    isLoggedIn: false
+    isLoggedIn: false,
+    completion: null,
+    lastProgress: null
 };
 
 /**
@@ -947,9 +962,32 @@ function handleCommandResponse(data) {
         return;
     }
 
-    // 通关提示
-    if (data.completed) {
-        addOutputMessage('🎉 恭喜！你已完成所有任务，游戏通关！', 'game-response');
+    // 通关提示和进度信息
+    if (data.progress) {
+        const progress = data.progress;
+        
+        // 每次命令后都显示进度信息
+        const progressMsg = `进度：房间 ${progress.roomsExplored}/${progress.totalRooms} | ` +
+                           `物品 ${progress.itemsCollected}/${progress.totalItems} | ` +
+                           `饼干: ${progress.cookieEaten ? '已吃' : '未吃'} | ` +
+                           `位置: ${progress.atStartRoom ? '起始房间' : '其他房间'}`;
+        addOutputMessage(progressMsg, 'game-response');
+        
+        // 如果通关，显示醒目的通关提示
+        if (data.completed || progress.completed) {
+            addOutputMessage('', 'game-response'); // 空行分隔
+            addOutputMessage('🎉🎉🎉 恭喜！你已完成所有任务，游戏通关！🎉🎉🎉', 'success');
+            addOutputMessage('', 'game-response'); // 空行分隔
+            addOutputMessage('通关详情：', 'game-response');
+            addOutputMessage(`✓ 已探索所有房间: ${progress.roomsExplored}/${progress.totalRooms}`, 'success');
+            addOutputMessage(`✓ 已收集所有物品: ${progress.itemsCollected}/${progress.totalItems}`, 'success');
+            addOutputMessage(`✓ 魔法饼干: ${progress.cookieEaten ? '已吃掉 ✓' : '未吃掉 ✗'}`, progress.cookieEaten ? 'success' : 'error');
+            addOutputMessage(`✓ 当前位置: ${progress.atStartRoom ? '起始房间 ✓' : '其他房间 ✗'}`, progress.atStartRoom ? 'success' : 'error');
+            addOutputMessage('', 'game-response'); // 空行分隔
+        }
+        
+        // 保存当前进度用于比较
+        gameState.lastProgress = progress;
     }
 }
 
@@ -990,10 +1028,12 @@ async function loadGameState() {
         // 更新游戏状态
         gameState.currentRoom = data.currentRoom;
         gameState.player = data.player;
+        gameState.completion = data.completion;
         
         // 调试：输出更新后的游戏状态
         console.log('📝 更新后的游戏状态 - 当前房间:', gameState.currentRoom);
         console.log('📝 更新后的游戏状态 - 房间物品数组:', gameState.currentRoom?.items);
+        console.log('📝 更新后的游戏状态 - 通关信息:', gameState.completion);
         
         // 更新界面
         updateUI();
@@ -1037,8 +1077,11 @@ function updateUI() {
         const totalWeight = gameState.player.totalWeight || 0;
         const maxWeight = gameState.player.maxWeight || 10;
         const itemCount = gameState.player.inventory?.length || 0;
-        const visitedCount = gameState.player.visitedRooms?.length || 0;
-        const totalRooms = 6; // 总房间数
+        
+        // 从completion数据获取已访问房间数，如果没有则从player.visitedRooms获取
+        const visitedCount = gameState.completion?.roomsExplored || 
+                            gameState.player.visitedRooms?.length || 0;
+        const totalRooms = gameState.completion?.totalRooms || 6;
         
         // 更新顶部状态栏
         const weightTextHeader = document.getElementById('weight-text-header');

@@ -195,7 +195,10 @@ public class GameWebServer {
         out.println("Content-Type: application/json; charset=UTF-8");
         out.println();
         
-        if (method.equals("OPTIONS")) {
+        // 规范化HTTP方法（转大写并去除空格）
+        String normalizedMethod = method != null ? method.toUpperCase().trim() : "";
+        
+        if (normalizedMethod.equals("OPTIONS")) {
             out.flush();
             return;
         }
@@ -207,8 +210,32 @@ public class GameWebServer {
             pathOnly = path.substring(0, queryIndex);
         }
         
+        // 规范化路径：去除多余的斜杠，确保以/api/开头
+        final String normalizedPath = normalizePath(pathOnly);
+        
+        // 调试日志：输出请求信息
+        System.out.println("=== API请求 ===");
+        System.out.println("原始方法: " + method);
+        System.out.println("规范化方法: " + normalizedMethod);
+        System.out.println("原始路径: " + path);
+        System.out.println("去除查询参数后: " + pathOnly);
+        System.out.println("规范化路径: " + normalizedPath);
+        System.out.println("请求体: " + (requestBody != null && !requestBody.isEmpty() ? requestBody : "(空)"));
+        System.out.println("请求体长度: " + (requestBody != null ? requestBody.length() : 0));
+        
+        // 详细路径匹配调试
+        System.out.println("路径匹配检查:");
+        System.out.println("  normalizedPath: [" + normalizedPath + "] (长度: " + normalizedPath.length() + ")");
+        System.out.println("  normalizedPath.equals(\"/api/register\"): " + normalizedPath.equals("/api/register"));
+        System.out.println("  normalizedPath.equals(\"/api/login\"): " + normalizedPath.equals("/api/login"));
+        System.out.println("  normalizedPath.equals(\"/api/command\"): " + normalizedPath.equals("/api/command"));
+        System.out.println("  normalizedPath.equals(\"/api/status\"): " + normalizedPath.equals("/api/status"));
+        System.out.println("  normalizedMethod: [" + normalizedMethod + "]");
+        System.out.println("  normalizedMethod.equals(\"POST\"): " + normalizedMethod.equals("POST"));
+        System.out.println("  normalizedMethod.equals(\"GET\"): " + normalizedMethod.equals("GET"));
+        
         try {
-            if (pathOnly.equals("/api/register") && method.equals("POST")) {
+            if (normalizedPath.equals("/api/register") && normalizedMethod.equals("POST")) {
                 // 注册新用户
                 Map<String, String> request = JsonUtil.parseSimpleJson(requestBody);
                 String username = request != null ? request.get("username") : null;
@@ -216,78 +243,96 @@ public class GameWebServer {
                 
                 Map<String, Object> response = gameController.register(username, password);
                 out.println(JsonUtil.toJson(response));
-            } else if (pathOnly.equals("/api/login") && method.equals("POST")) {
+            } else if (normalizedPath.equals("/api/login") && normalizedMethod.equals("POST")) {
                 // 用户登录
+                System.out.println("处理登录请求...");
                 Map<String, String> request = JsonUtil.parseSimpleJson(requestBody);
                 String username = request != null ? request.get("username") : null;
                 String password = request != null ? request.get("password") : null;
                 
+                System.out.println("解析后的用户名: " + (username != null ? username : "(null)"));
+                System.out.println("解析后的密码长度: " + (password != null ? password.length() : 0));
+                
                 Map<String, Object> response = gameController.login(username, password);
+                System.out.println("登录响应: success=" + response.get("success"));
                 out.println(JsonUtil.toJson(response));
-        } else if (pathOnly.equals("/api/command") && method.equals("POST")) {
-            // 执行游戏命令
-            Map<String, String> request = JsonUtil.parseSimpleJson(requestBody);
-            String command = request != null ? request.get("command") : null;
-            String sessionId = request != null ? request.get("sessionId") : null;
-            
-            if (command == null || command.isEmpty()) {
-                Map<String, Object> error = new HashMap<>();
-                error.put("success", false);
-                error.put("message", "缺少命令参数");
-                out.println(JsonUtil.toJson(error));
-            } else {
-                Map<String, Object> response;
-                if (sessionId != null && !sessionId.isEmpty()) {
-                    response = gameController.executeCommand(command, sessionId);
+            } else if (normalizedPath.equals("/api/command") && normalizedMethod.equals("POST")) {
+                // 执行游戏命令
+                Map<String, String> request = JsonUtil.parseSimpleJson(requestBody);
+                String command = request != null ? request.get("command") : null;
+                String sessionId = request != null ? request.get("sessionId") : null;
+                
+                if (command == null || command.isEmpty()) {
+                    Map<String, Object> error = new HashMap<>();
+                    error.put("success", false);
+                    error.put("message", "缺少命令参数");
+                    out.println(JsonUtil.toJson(error));
                 } else {
-                    response = gameController.executeCommand(command);
+                    Map<String, Object> response;
+                    if (sessionId != null && !sessionId.isEmpty()) {
+                        response = gameController.executeCommand(command, sessionId);
+                    } else {
+                        response = gameController.executeCommand(command);
+                    }
+                    out.println(JsonUtil.toJson(response));
                 }
-                out.println(JsonUtil.toJson(response));
-            }
-        } else if (pathOnly.equals("/api/status") && method.equals("GET")) {
-            // 获取游戏状态
-            String sessionId = getQueryParameter(path, "sessionId");
-            Map<String, Object> status;
-            if (sessionId != null && !sessionId.isEmpty()) {
-                status = gameController.getGameStatus(sessionId);
+            } else if (normalizedPath.equals("/api/status") && normalizedMethod.equals("GET")) {
+                // 获取游戏状态
+                String sessionId = getQueryParameter(path, "sessionId");
+                Map<String, Object> status;
+                if (sessionId != null && !sessionId.isEmpty()) {
+                    status = gameController.getGameStatus(sessionId);
+                } else {
+                    status = gameController.getGameStatus();
+                }
+                out.println(JsonUtil.toJson(status));
+            } else if (normalizedPath.equals("/api/save") && normalizedMethod.equals("POST")) {
+                // 保存游戏状态
+                Map<String, String> request = JsonUtil.parseSimpleJson(requestBody);
+                String sessionId = request != null ? request.get("sessionId") : null;
+                
+                if (sessionId == null || sessionId.isEmpty()) {
+                    Map<String, Object> error = new HashMap<>();
+                    error.put("success", false);
+                    error.put("message", "缺少会话ID");
+                    out.println(JsonUtil.toJson(error));
+                } else {
+                    Map<String, Object> response = gameController.saveGame(sessionId);
+                    out.println(JsonUtil.toJson(response));
+                }
+            } else if (normalizedPath.equals("/api/load") && normalizedMethod.equals("POST")) {
+                // 加载游戏状态
+                Map<String, String> request = JsonUtil.parseSimpleJson(requestBody);
+                String sessionId = request != null ? request.get("sessionId") : null;
+                
+                if (sessionId == null || sessionId.isEmpty()) {
+                    Map<String, Object> error = new HashMap<>();
+                    error.put("success", false);
+                    error.put("message", "缺少会话ID");
+                    out.println(JsonUtil.toJson(error));
+                } else {
+                    Map<String, Object> response = gameController.loadGame(sessionId);
+                    out.println(JsonUtil.toJson(response));
+                }
             } else {
-                status = gameController.getGameStatus();
-            }
-            out.println(JsonUtil.toJson(status));
-        } else if (pathOnly.equals("/api/save") && method.equals("POST")) {
-            // 保存游戏状态
-            Map<String, String> request = JsonUtil.parseSimpleJson(requestBody);
-            String sessionId = request != null ? request.get("sessionId") : null;
-            
-            if (sessionId == null || sessionId.isEmpty()) {
+                // 未匹配到任何路由，输出详细调试信息
+                System.err.println("❌ 未匹配的API端点:");
+                System.err.println("  方法: " + method);
+                System.err.println("  路径: " + path);
+                System.err.println("  规范化路径: " + normalizedPath);
+                System.err.println("  支持的端点: /api/register, /api/login, /api/command, /api/status, /api/save, /api/load");
+                
+                final String finalPath = path;
                 Map<String, Object> error = new HashMap<>();
                 error.put("success", false);
-                error.put("message", "缺少会话ID");
+                error.put("message", "未知的API端点: " + normalizedPath + " (方法: " + method + ")");
+                Map<String, String> debugInfo = new HashMap<>();
+                debugInfo.put("originalPath", finalPath);
+                debugInfo.put("normalizedPath", normalizedPath);
+                debugInfo.put("method", method);
+                error.put("debug", debugInfo);
                 out.println(JsonUtil.toJson(error));
-            } else {
-                Map<String, Object> response = gameController.saveGame(sessionId);
-                out.println(JsonUtil.toJson(response));
             }
-        } else if (pathOnly.equals("/api/load") && method.equals("POST")) {
-            // 加载游戏状态
-            Map<String, String> request = JsonUtil.parseSimpleJson(requestBody);
-            String sessionId = request != null ? request.get("sessionId") : null;
-            
-            if (sessionId == null || sessionId.isEmpty()) {
-                Map<String, Object> error = new HashMap<>();
-                error.put("success", false);
-                error.put("message", "缺少会话ID");
-                out.println(JsonUtil.toJson(error));
-            } else {
-                Map<String, Object> response = gameController.loadGame(sessionId);
-                out.println(JsonUtil.toJson(response));
-            }
-        } else {
-            Map<String, Object> error = new HashMap<>();
-            error.put("success", false);
-            error.put("message", "未知的API端点");
-            out.println(JsonUtil.toJson(error));
-        }
         } catch (Exception e) {
             // 捕获所有异常，确保返回有效的JSON响应
             System.err.println("处理API请求时出错: " + e.getMessage());
@@ -299,6 +344,36 @@ public class GameWebServer {
         }
         
         out.flush();
+    }
+    
+    /**
+     * 规范化路径：去除多余的斜杠，确保格式正确
+     */
+    private String normalizePath(String path) {
+        if (path == null || path.isEmpty()) {
+            return "/";
+        }
+        
+        // 去除首尾空格和制表符
+        path = path.trim();
+        
+        // 确保以/开头
+        if (!path.startsWith("/")) {
+            path = "/" + path;
+        }
+        
+        // 去除多余的斜杠（将多个连续的斜杠替换为单个斜杠）
+        path = path.replaceAll("/+", "/");
+        
+        // 如果路径以/结尾且不是根路径，去除末尾斜杠
+        if (path.length() > 1 && path.endsWith("/")) {
+            path = path.substring(0, path.length() - 1);
+        }
+        
+        // 调试输出
+        System.out.println("路径规范化: [" + path + "] -> [" + path + "]");
+        
+        return path;
     }
     
     /**

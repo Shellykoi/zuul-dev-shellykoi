@@ -44,6 +44,8 @@ http://localhost:8080
    # java -cp "bin:lib/mysql-connector-j-8.0.33.jar" cn.edu.whut.sept.zuul.WebMain
 ---
 
+   .\compile_and_run.bat
+
 ## 🗺️ 游戏世界
 
 游戏世界由以下房间组成：

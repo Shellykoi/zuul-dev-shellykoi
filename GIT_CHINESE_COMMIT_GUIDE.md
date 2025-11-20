@@ -16,10 +16,12 @@
 ```powershell
 # 单行提交消息
 git commit -m "完成World of Zuul游戏功能扩展：物品系统、玩家系统、back命令、魔法饼干、传送房间，并重构为命令模式"
-
+git commit -m "改为中文化，然后增加前端页面8080访问"
+git commit -m "连接本地数据库，增加zuul-game数据库"
 # 多行提交消息
 git commit -m "完成World of Zuul游戏功能扩展" -m "- 物品系统" -m "- 玩家系统" -m "- back命令" -m "- 魔法饼干" -m "- 传送房间" -m "- 重构为命令模式"
 ```
+git push origin master
 
 **优点**：
 - ✅ 简单直接，不需要配置编辑器
