@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>World of Zuul - 校园冒险</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- 动态背景 -->
+    <div class="background-blobs">
+        <div class="blob blob1"></div>
+        <div class="blob blob2"></div>
+        <div class="blob blob3"></div>
+    </div>
+
+    <!-- 登录页面（完整页面，非弹窗） -->
+    <div class="login-page" id="login-page">
+        <div class="login-container">
+            <div class="login-header">
+                <h1 class="login-title">🗝️ World of Zuul</h1>
+                <p class="login-subtitle">校园冒险游戏</p>
+            </div>
+            
+            <div class="login-tabs">
+                <button class="tab-btn active" id="login-tab">登录</button>
+                <button class="tab-btn" id="register-tab">注册</button>
+            </div>
+            
+            <!-- 登录表单 -->
+            <div class="login-form" id="login-form">
+                <div class="form-group">
+                    <label for="login-username">用户名</label>
+                    <input type="text" id="login-username" class="form-input" placeholder="请输入用户名" autocomplete="username">
+                </div>
+                <div class="form-group">
+                    <label for="login-password">密码</label>
+                    <input type="password" id="login-password" class="form-input" placeholder="请输入密码" autocomplete="current-password">
+                </div>
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="load-saved-game">
+                        <span>加载保存的游戏</span>
+                    </label>
+                </div>
+                <div class="form-actions">
+                    <button class="btn-primary" id="login-btn">登录</button>
+                    <button class="btn-secondary" id="guest-btn">游客模式（不保存）</button>
+                </div>
+                <div class="form-message" id="login-message"></div>
+            </div>
+            
+            <!-- 注册表单 -->
+            <div class="login-form" id="register-form" style="display: none;">
+                <div class="form-group">
+                    <label for="register-username">用户名</label>
+                    <input type="text" id="register-username" class="form-input" placeholder="请输入用户名" autocomplete="username">
+                </div>
+                <div class="form-group">
+                    <label for="register-password">密码</label>
+                    <input type="password" id="register-password" class="form-input" placeholder="请输入密码" autocomplete="new-password">
+                </div>
+                <div class="form-group">
+                    <label for="register-password-confirm">确认密码</label>
+                    <input type="password" id="register-password-confirm" class="form-input" placeholder="请再次输入密码" autocomplete="new-password">
+                </div>
+                <div class="form-actions">
+                    <button class="btn-primary" id="register-btn">注册</button>
+                </div>
+                <div class="form-message" id="register-message"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 游戏主界面 -->
+    <div class="game-page" id="game-page" style="display: none;">
+        <!-- 顶部状态栏 -->
+        <header class="top-bar">
+            <div class="top-bar-content">
+                <div class="top-bar-left">
+                    <h1 class="game-title">🗝️ World of Zuul</h1>
+                    <div class="room-info-header">
+                        <span class="current-room" id="room-name-header">未知房间</span>
+                        <span class="visited-rooms" id="visited-rooms">已访问: 0/6</span>
+                    </div>
+                </div>
+                <div class="top-bar-right">
+                    <div class="weight-info" id="weight-info-header" title="超过上限将无法拾取物品。吃掉魔法饼干可增加上限。">
+                        <span class="weight-label">负重</span>
+                        <div class="weight-progress-bar">
+                            <div class="weight-progress-fill" id="weight-progress-fill"></div>
+                        </div>
+                        <span class="weight-text" id="weight-text-header">0/10 kg</span>
+                    </div>
+                    <div class="item-count-header" id="item-count-header">物品: 0</div>
+                    <button class="btn-help" id="help-btn-header">帮助</button>
+                    <button class="btn-exit" id="quit-btn">退出</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- 主游戏区域 -->
+        <main class="game-main">
+            <!-- 左侧：房间信息 + 行动区 -->
+            <aside class="left-panel">
+                <!-- 房间卡片 -->
+                <div class="room-card">
+                    <h2 class="room-title" id="room-title">未知房间</h2>
+                    <p class="room-description" id="room-description">正在加载...</p>
+                    
+                    <!-- 出口信息 -->
+                    <div class="exits-section">
+                        <h3 class="exits-title">出口</h3>
+                        <div class="exits-list" id="exits-list">
+                            <!-- 动态生成出口按钮 -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 方向罗盘 -->
+                <div class="compass-card">
+                    <div class="compass-grid" id="compass-grid">
+                        <button class="compass-btn" data-direction="north" data-key="W" id="compass-north" title="北 (North) - 按 W 键">
+                            <span class="compass-arrow">↑</span>
+                            <span class="compass-label">北</span>
+                        </button>
+                        <button class="compass-btn" data-direction="west" data-key="A" id="compass-west" title="西 (West) - 按 A 键">
+                            <span class="compass-arrow">←</span>
+                            <span class="compass-label">西</span>
+                        </button>
+                        <button class="compass-btn" data-direction="center" disabled>
+                            <span class="compass-center">📍</span>
+                        </button>
+                        <button class="compass-btn" data-direction="east" data-key="D" id="compass-east" title="东 (East) - 按 D 键">
+                            <span class="compass-arrow">→</span>
+                            <span class="compass-label">东</span>
+                        </button>
+                        <button class="compass-btn" data-direction="south" data-key="S" id="compass-south" title="南 (South) - 按 S 键">
+                            <span class="compass-arrow">↓</span>
+                            <span class="compass-label">南</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 房间物品列表 -->
+                <div class="room-items-card">
+                    <h3 class="room-items-title">房间里的物品</h3>
+                    <div class="room-items-list" id="room-items-list">
+                        <p class="empty-state">暂无物品</p>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- 右侧：日志 + 输入 -->
+            <section class="right-panel">
+                <!-- 游戏日志 -->
+                <div class="log-section">
+                    <div class="log-header">
+                        <h2 class="log-title">游戏日志</h2>
+                        <button class="btn-clear-log" id="clear-btn" title="清空日志">
+                            <span class="clear-icon">🗑️</span>
+                        </button>
+                    </div>
+                    <div class="log-area" id="output-area">
+                        <div class="welcome-message">
+                            <p>欢迎来到 World of Zuul！</p>
+                            <p>这是一个文本冒险游戏。使用方向按钮或输入命令来探索世界。</p>
+                            <p>输入 'help' 查看所有可用命令。</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 命令输入区域 -->
+                <div class="input-section">
+                    <div class="input-wrapper">
+                        <input 
+                            type="text" 
+                            id="command-input" 
+                            class="command-input" 
+                            placeholder="输入命令，例如：go north / look / take key..."
+                            autocomplete="off"
+                        >
+                        <button class="btn-submit" id="submit-btn">执行</button>
+                    </div>
+                    <!-- 推荐命令chips -->
+                    <div class="command-chips" id="command-chips">
+                        <!-- 动态生成推荐命令 -->
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- 底部：背包 + 负重 -->
+        <footer class="bottom-panel">
+            <div class="inventory-section">
+                <h3 class="inventory-title">我的物品</h3>
+                <div class="inventory-list" id="inventory-list">
+                    <p class="empty-state">背包为空</p>
+                </div>
+            </div>
+            <div class="weight-section">
+                <div class="weight-display">
+                    <span class="weight-label-full">当前负重</span>
+                    <div class="weight-progress-full">
+                        <div class="weight-progress-fill-full" id="weight-progress-fill-full"></div>
+                    </div>
+                    <span class="weight-text-full" id="weight-text-full">0 / 10 kg</span>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- 物品选择对话框（模态框） -->
+    <div class="modal" id="item-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-title">选择物品</h3>
+                <button class="modal-close" id="modal-close">&times;</button>
+            </div>
+            <div class="modal-body" id="modal-body">
+                <!-- 物品列表将动态插入这里 -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 帮助对话框 -->
+    <div class="modal" id="help-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>游戏帮助</h3>
+                <button class="modal-close" id="help-modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="help-content" id="help-content">
+                    <!-- 帮助内容将动态插入 -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="game.js"></script>
+</body>
+</html>

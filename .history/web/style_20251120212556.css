@@ -1,0 +1,1451 @@
+/* ============================================
+   World of Zuul - 柔光霓虹·沉浸式设计
+   灵感来源: Couple Game UI
+   ============================================ */
+
+/* 全局样式与变量 */
+:root {
+    /* 颜色主题 - 深紫 + 暖色柔光 */
+    --bg-deep-purple: #2C1F3A;
+    --panel-bg: rgba(255, 255, 255, 0.05);
+    --panel-border: rgba(255, 255, 255, 0.1);
+    
+    --accent-peach: #FFCBA4;
+    --accent-pink: #FFB6C1;
+    --accent-lavender: #D8B4E2;
+
+    --text-light: #FFFFFF;
+    --text-medium: #DCD0FF;
+    --text-dark: #3D2C52;
+    
+    --control-bg: #FFFFFF;
+    --control-bg-hover: #F5F5F5;
+
+    /* 尺寸与圆角 */
+    --radius-huge: 40px;
+    --radius-large: 24px;
+    --radius-medium: 16px;
+    --radius-pill: 50px;
+
+    /* 字体 */
+    --font-family: 'PingFang SC', 'Noto Sans SC', 'Microsoft YaHei', sans-serif;
+    
+    /* 兼容旧变量 */
+    --bg-color: var(--bg-deep-purple);
+    --primary-color: var(--accent-pink);
+    --text-color: var(--text-light);
+    --text-secondary: var(--text-medium);
+    --glass-bg: var(--panel-bg);
+    --glass-border: var(--panel-border);
+    --shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: var(--font-family);
+    background-color: var(--bg-deep-purple);
+    color: var(--text-light);
+    line-height: 1.6;
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+/* UI面板通用样式 */
+.ui-panel {
+    background: var(--panel-bg);
+    border-radius: var(--radius-large);
+    border: 1px solid var(--panel-border);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    transition: all 0.3s ease;
+}
+
+/* 兼容旧类名 */
+.glass-panel {
+    background: var(--panel-bg);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    border-radius: var(--radius-large);
+    border: 1px solid var(--panel-border);
+    transition: all 0.3s ease;
+}
+
+/* 动态背景 */
+.background-blobs {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    overflow: hidden;
+    pointer-events: none;
+}
+.blob {
+    position: absolute;
+    border-radius: 50%;
+    /* 关键：极高的模糊度创造柔光效果 */
+    filter: blur(150px);
+    opacity: 0.5;
+}
+.blob1 {
+    width: 500px;
+    height: 500px;
+    background: var(--accent-peach);
+    top: -200px;
+    left: -200px;
+    animation: move 20s infinite alternate;
+}
+.blob2 {
+    width: 400px;
+    height: 400px;
+    background: var(--accent-pink);
+    bottom: -150px;
+    right: -150px;
+    animation: move 25s infinite alternate-reverse;
+}
+.blob3 {
+    width: 350px;
+    height: 350px;
+    background: var(--accent-lavender);
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    animation: move 15s infinite alternate;
+}
+
+@keyframes move {
+    from { transform: translate(0, 0) scale(1) rotate(0deg); }
+    to { transform: translate(150px, 100px) scale(1.3) rotate(90deg); }
+}
+
+/* ============================================
+   登录页面
+   ============================================ */
+.login-page {
+    display: flex;
+    width: 100%;
+    height: 100vh;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.login-container {
+    padding: 40px;
+    width: 100%;
+    max-width: 450px;
+    text-align: center;
+    animation: fadeIn 0.5s ease;
+}
+
+.login-title {
+    font-size: 2.2rem;
+    color: var(--primary-color);
+    margin-bottom: 8px;
+}
+
+.login-subtitle {
+    color: var(--text-secondary);
+    margin-bottom: 30px;
+}
+
+.login-tabs {
+    display: flex;
+    margin-bottom: 30px;
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: var(--radius-pill);
+    padding: 4px;
+}
+
+.tab-btn {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    padding: 10px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
+    border-radius: var(--radius-pill);
+    transition: all 0.3s ease;
+    font-family: inherit;
+}
+
+.tab-btn.active {
+    background: var(--control-bg);
+    color: var(--text-dark);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.form-group {
+    margin-bottom: 16px;
+    text-align: left;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    font-weight: 500;
+}
+
+.form-input {
+    width: 100%;
+    padding: 16px 24px;
+    background: var(--control-bg);
+    border: 2px solid transparent;
+    border-radius: var(--radius-pill);
+    color: var(--text-dark);
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    font-family: inherit;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: var(--accent-pink);
+    box-shadow: 0 0 0 3px rgba(255, 182, 193, 0.3);
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    cursor: pointer;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.checkbox-label input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    accent-color: var(--primary-color);
+}
+
+.form-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 24px;
+}
+
+.btn-primary, .btn-secondary {
+    flex: 1;
+    border: none;
+    padding: 16px;
+    border-radius: var(--radius-pill);
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    font-family: inherit;
+}
+
+.btn-primary {
+    background: var(--control-bg);
+    color: var(--text-dark);
+}
+.btn-primary:hover {
+    background: var(--control-bg-hover);
+    transform: translateY(-2px);
+}
+
+.btn-secondary {
+    background: var(--panel-bg);
+    color: var(--text-light);
+    border: 1px solid var(--panel-border);
+}
+.btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.form-message {
+    margin-top: 15px;
+    font-size: 0.9rem;
+    min-height: 20px;
+    padding: 12px;
+    border-radius: var(--radius-small);
+}
+
+.form-message.error {
+    background: rgba(255, 107, 107, 0.1);
+    color: #ff6b6b;
+    border: 1px solid rgba(255, 107, 107, 0.3);
+}
+
+.form-message.success {
+    background: rgba(76, 175, 80, 0.1);
+    color: #4caf50;
+    border: 1px solid rgba(76, 175, 80, 0.3);
+}
+
+/* ============================================
+   游戏主界面
+   ============================================ */
+.game-page {
+    width: 100%;
+    min-height: 100vh;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    position: relative;
+}
+
+/* 顶部状态栏 */
+.top-bar {
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-radius: var(--radius-large);
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--shadow);
+    padding: 16px 24px;
+    position: sticky;
+    top: 24px;
+    z-index: 1000;
+}
+
+.top-bar-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.top-bar-left {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    flex-wrap: wrap;
+}
+
+.game-title {
+    font-size: 1.5rem;
+    color: var(--primary-color);
+    font-weight: 600;
+    margin: 0;
+}
+
+.room-info-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.current-room {
+    background: var(--accent-peach);
+    color: var(--text-dark);
+    padding: 6px 16px;
+    border-radius: var(--radius-pill);
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.visited-rooms {
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+}
+
+.top-bar-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.weight-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: rgba(255, 255, 255, 0.6);
+    border-radius: var(--radius-small);
+    cursor: help;
+}
+
+.weight-label {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.weight-progress-bar {
+    width: 60px;
+    height: 6px;
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.weight-progress-fill {
+    height: 100%;
+    background: var(--primary-color);
+    transition: width 0.3s ease, background-color 0.3s ease;
+    border-radius: 3px;
+}
+
+.weight-progress-fill.warning {
+    background: var(--accent-color);
+}
+
+.weight-progress-fill.danger {
+    background: #d32f2f;
+}
+
+.weight-text {
+    font-size: 0.85rem;
+    color: var(--text-primary);
+    font-weight: 500;
+    min-width: 50px;
+}
+
+.item-count-header {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    padding: 8px 12px;
+    background: rgba(255, 255, 255, 0.6);
+    border-radius: var(--radius-small);
+}
+
+.btn-help, .btn-exit {
+    padding: 8px 16px;
+    border-radius: var(--radius-small);
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+    border: none;
+    font-weight: 500;
+}
+
+.btn-help {
+    background: rgba(255, 255, 255, 0.6);
+    color: var(--primary-color);
+}
+.btn-help:hover {
+    background: var(--primary-color);
+    color: #fff;
+    transform: translateY(-2px);
+}
+
+.btn-exit {
+    background: rgba(255, 107, 107, 0.1);
+    color: #ff6b6b;
+}
+.btn-exit:hover {
+    background: #ff6b6b;
+    color: #fff;
+}
+
+/* 主游戏区域 */
+.game-main {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 380px 1fr 1fr;
+    gap: 24px;
+    min-height: 0;
+}
+
+/* 中央面板：角色动画区域 */
+.center-panel {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 0;
+}
+
+.character-container {
+    width: 100%;
+    height: 100%;
+    min-height: 400px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 24px;
+    position: relative;
+}
+
+#character-animation-container {
+    width: 100%;
+    height: 100%;
+    max-width: 400px;
+    max-height: 400px;
+}
+
+/* 左侧面板 */
+.left-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.room-card, .compass-card, .room-items-card {
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-radius: var(--radius-large);
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--shadow);
+    padding: 24px;
+}
+
+.room-title {
+    font-size: 1.5rem;
+    color: var(--primary-color);
+    margin-bottom: 12px;
+    font-weight: 600;
+}
+
+.room-description {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    line-height: 1.8;
+    margin-bottom: 20px;
+}
+
+.exits-section {
+    margin-top: 20px;
+}
+
+.exits-title {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin-bottom: 12px;
+    font-weight: 500;
+}
+
+.exits-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.exit-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--primary-color);
+    color: #fff;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+    font-family: inherit;
+}
+
+.exit-chip:hover:not(:disabled) {
+    background: #5a48c7;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(109, 91, 222, 0.2);
+}
+
+.exit-chip:disabled {
+    background: rgba(0, 0, 0, 0.1);
+    color: var(--text-secondary);
+    cursor: not-allowed;
+}
+
+/* 方向罗盘 */
+.compass-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    gap: 8px;
+    max-width: 200px;
+    margin: 0 auto;
+}
+
+.compass-btn {
+    aspect-ratio: 1;
+    background: rgba(255, 255, 255, 0.7);
+    border: 2px solid transparent;
+    border-radius: var(--radius-small);
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 8px;
+}
+
+.compass-btn:hover:not(:disabled) {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+    color: #fff;
+    transform: scale(1.05);
+}
+
+.compass-btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.3;
+    background: transparent;
+}
+
+.compass-btn[data-direction="center"] {
+    background: var(--accent-color);
+    border-color: var(--accent-color);
+    cursor: default;
+}
+
+.compass-arrow {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.compass-label {
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.compass-center {
+    font-size: 1.5rem;
+}
+
+/* 房间物品 */
+.room-items-title {
+    font-size: 1rem;
+    color: var(--text-primary);
+    margin-bottom: 16px;
+    font-weight: 600;
+}
+
+.room-items-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.room-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: var(--radius-small);
+    transition: all 0.2s ease;
+}
+
+.room-item:hover {
+    transform: translateX(4px);
+    background: #fff;
+}
+
+.room-item-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+}
+
+.room-item-icon {
+    font-size: 1.2rem;
+}
+
+.room-item-name {
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.room-item-weight {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.room-item-action {
+    background: var(--primary-color);
+    color: #fff;
+    border: none;
+    padding: 6px 12px;
+    border-radius: var(--radius-pill);
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: all 0.2s ease;
+    font-family: inherit;
+}
+
+.room-item-action:hover:not(:disabled) {
+    background: #5a48c7;
+}
+
+.room-item-action:disabled {
+    background: rgba(0, 0, 0, 0.1);
+    color: var(--text-secondary);
+    cursor: not-allowed;
+}
+
+.empty-state {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    text-align: center;
+    padding: 20px;
+    font-style: italic;
+}
+
+/* 右侧面板 */
+.right-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.log-section {
+    flex: 1;
+    background: var(--panel-bg);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    border-radius: var(--radius-large);
+    border: 1px solid var(--panel-border);
+    display: flex;
+    flex-direction: column;
+    min-height: 500px;
+    max-height: 700px;
+}
+
+.log-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--glass-border);
+}
+
+.log-title {
+    font-size: 1.1rem;
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.btn-clear-log {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: var(--radius-small);
+    transition: all 0.2s ease;
+    font-size: 1.2rem;
+}
+
+.btn-clear-log:hover {
+    background: rgba(255, 255, 255, 0.5);
+}
+
+.log-area {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+    font-size: 0.95rem;
+    line-height: 1.8;
+}
+
+.log-area::-webkit-scrollbar {
+    width: 8px;
+}
+
+.log-area::-webkit-scrollbar-thumb {
+    background: var(--primary-light);
+    border-radius: 4px;
+}
+
+.log-area::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-color);
+}
+
+.log-message {
+    margin-bottom: 16px;
+    animation: fadeIn 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.message-bubble {
+    padding: 12px 16px;
+    border-radius: var(--radius-medium);
+    max-width: 85%;
+    word-wrap: break-word;
+}
+
+.message-user {
+    align-self: flex-end;
+    background: var(--control-bg);
+    color: var(--text-dark);
+    border-bottom-right-radius: 4px;
+}
+
+.message-system {
+    align-self: flex-start;
+    background: var(--panel-bg);
+    color: var(--text-light);
+    border: 1px solid var(--panel-border);
+    border-bottom-left-radius: 4px;
+}
+
+.message-error {
+    background: #ffeded;
+    color: #d32f2f;
+    border-color: rgba(211, 47, 47, 0.3);
+}
+
+.message-success {
+    background: #e8f5e9;
+    color: #388e3c;
+    border-color: rgba(56, 142, 60, 0.3);
+}
+
+.welcome-message {
+    color: var(--text-secondary);
+    font-size: 1rem;
+    line-height: 2;
+}
+
+.welcome-message p {
+    margin-bottom: 12px;
+}
+
+/* 命令输入区域 */
+.input-section {
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-radius: var(--radius-large);
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--shadow);
+    padding: 20px;
+}
+
+.input-wrapper {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.command-input {
+    flex: 1;
+    background: var(--control-bg);
+    border: 2px solid transparent;
+    border-radius: var(--radius-pill);
+    padding: 14px 20px;
+    font-size: 0.95rem;
+    color: var(--text-dark);
+    font-family: inherit;
+    transition: all 0.3s ease;
+}
+
+.command-input:focus {
+    outline: none;
+    border-color: var(--accent-pink);
+    box-shadow: 0 0 0 3px rgba(255, 182, 193, 0.3);
+}
+
+.btn-submit {
+    background: var(--control-bg);
+    color: var(--text-dark);
+    border: none;
+    border-radius: 50%;
+    width: 48px;
+    height: 48px;
+    cursor: pointer;
+    font-size: 1.5rem;
+    font-weight: bold;
+    line-height: 48px;
+    transition: all 0.3s ease;
+}
+
+.btn-submit:hover:not(:disabled) {
+    background: var(--control-bg-hover);
+    transform: scale(1.05);
+}
+
+.btn-submit:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.command-chips {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.command-chip {
+    background: rgba(255, 255, 255, 0.6);
+    color: var(--primary-color);
+    border: none;
+    padding: 6px 14px;
+    border-radius: var(--radius-pill);
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: inherit;
+}
+
+.command-chip:hover {
+    background: #fff;
+    transform: translateY(-2px);
+}
+
+/* 底部面板 */
+.bottom-panel {
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-radius: var(--radius-large);
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--shadow);
+    padding: 20px 24px;
+    display: flex;
+    gap: 24px;
+    align-items: flex-start;
+}
+
+.weight-section {
+    min-width: 200px;
+}
+
+.weight-display {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.weight-label-full {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.weight-progress-full {
+    width: 100%;
+    height: 10px;
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.weight-progress-fill-full {
+    height: 100%;
+    background: var(--primary-color);
+    transition: width 0.3s ease, background-color 0.3s ease;
+    border-radius: 5px;
+}
+
+.weight-progress-fill-full.warning {
+    background: var(--accent-color);
+}
+
+.weight-progress-fill-full.danger {
+    background: #d32f2f;
+}
+
+.weight-text-full {
+    font-size: 0.9rem;
+    color: var(--text-primary);
+    font-weight: 600;
+    text-align: center;
+}
+
+/* ============================================
+   背包悬浮按钮
+   ============================================ */
+/* ============================================
+   新版背包交互面板 (核心修改)
+   ============================================ */
+.inventory-panel {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 999;
+    background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0));
+    border: 1px solid var(--panel-border);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+    /* 关键：尺寸和圆角的过渡动画 */
+    transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+    
+    /* 折叠状态 */
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    cursor: pointer;
+    overflow: hidden;
+}
+.inventory-panel.expanded {
+    /* 展开状态 */
+    width: 400px;
+    height: 500px;
+    max-height: 70vh;
+    border-radius: var(--radius-large);
+    cursor: default;
+}
+
+.inventory-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 64px;
+    cursor: pointer;
+    position: relative;
+}
+.inventory-panel.expanded .inventory-header {
+    justify-content: space-between;
+    padding: 0 24px;
+}
+
+.inventory-icon {
+    font-size: 1.8rem;
+    transition: opacity 0.3s ease;
+}
+.inventory-panel.expanded .inventory-icon {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.inventory-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--text-light);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+    position: absolute;
+}
+.inventory-panel.expanded .inventory-title {
+    opacity: 1;
+    pointer-events: auto;
+    position: static;
+}
+
+.inventory-badge {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: var(--accent-pink);
+    color: var(--text-dark);
+    border-radius: 50%;
+    width: 22px;
+    height: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: bold;
+    border: 2px solid var(--bg-deep-purple);
+}
+
+.inventory-body {
+    height: calc(100% - 64px);
+    overflow: hidden;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+.inventory-panel.expanded .inventory-body {
+    opacity: 1;
+}
+
+.inventory-grid-container {
+    padding: 0 24px 24px;
+    height: 100%;
+    overflow-y: auto;
+}
+.inventory-grid-container::-webkit-scrollbar {
+    width: 6px;
+}
+.inventory-grid-container::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 3px;
+}
+
+.inventory-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 16px;
+}
+
+.inventory-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 16px;
+}
+
+.inventory-item-card {
+    background: var(--panel-bg);
+    border-radius: var(--radius-medium);
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+}
+.inventory-item-card:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateY(-4px);
+}
+
+.inventory-item-icon {
+    font-size: 2.5rem;
+}
+
+.inventory-item-name {
+    font-weight: 500;
+    font-size: 0.9rem;
+    color: var(--text-light);
+}
+
+.inventory-item-weight {
+    font-size: 0.75rem;
+    color: var(--text-medium);
+}
+
+.inventory-item-menu {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+}
+
+.inventory-item-toggle {
+    background: rgba(255, 255, 255, 0.8);
+    border: none;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    cursor: pointer;
+    font-size: 1rem;
+    color: var(--text-secondary);
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.inventory-item-toggle:hover {
+    background: var(--primary-color);
+    color: #fff;
+}
+
+.inventory-item-dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    margin-top: 4px;
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-small);
+    box-shadow: var(--shadow);
+    min-width: 150px;
+    z-index: 100;
+    display: none;
+}
+
+.inventory-item-dropdown.show {
+    display: block;
+}
+
+.dropdown-item {
+    display: block;
+    width: 100%;
+    padding: 10px 16px;
+    background: transparent;
+    border: none;
+    text-align: left;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.9rem;
+    color: var(--text-primary);
+    transition: background 0.2s ease;
+}
+
+.dropdown-item:hover {
+    background: rgba(255, 255, 255, 0.5);
+}
+
+.dropdown-item:first-child {
+    border-top-left-radius: var(--radius-small);
+    border-top-right-radius: var(--radius-small);
+}
+
+.dropdown-item:last-child {
+    border-bottom-left-radius: var(--radius-small);
+    border-bottom-right-radius: var(--radius-small);
+}
+
+.inventory-empty {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text-secondary);
+}
+
+.inventory-empty-icon {
+    font-size: 4rem;
+    margin-bottom: 16px;
+    opacity: 0.5;
+}
+
+.inventory-empty-text {
+    font-size: 1rem;
+}
+
+/* ============================================
+   模态框样式
+   ============================================ */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 2000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.3);
+    justify-content: center;
+    align-items: center;
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+}
+
+.modal.show {
+    display: flex;
+    animation: fadeIn 0.3s ease;
+}
+
+.modal-content {
+    background: var(--glass-bg);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-radius: var(--radius-large);
+    border: 1px solid var(--glass-border);
+    box-shadow: 0 16px 48px rgba(109, 91, 222, 0.2);
+    width: 90%;
+    max-width: 500px;
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    animation: slideDown 0.3s ease;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--glass-border);
+}
+
+.modal-header h3 {
+    color: var(--primary-color);
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 1.8rem;
+    cursor: pointer;
+    line-height: 1;
+    transition: all 0.2s ease;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-small);
+}
+
+.modal-close:hover {
+    color: var(--text-primary);
+    background: rgba(255, 255, 255, 0.5);
+}
+
+.modal-body {
+    padding: 24px;
+    overflow-y: auto;
+    max-height: calc(80vh - 80px);
+}
+
+.item-list {
+    list-style: none;
+}
+
+.item-list-item {
+    background: rgba(255, 255, 255, 0.6);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-small);
+    padding: 12px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.item-list-item:hover {
+    background: #fff;
+    border-color: var(--primary-color);
+    transform: translateX(4px);
+}
+
+.item-list-item strong {
+    color: var(--primary-color);
+}
+
+.item-list-item .item-desc {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin-top: 5px;
+}
+
+.help-content {
+    color: var(--text-primary);
+    line-height: 1.8;
+}
+
+.help-content h4 {
+    color: var(--primary-color);
+    margin-top: 16px;
+    margin-bottom: 8px;
+    font-size: 1rem;
+}
+
+.help-content p {
+    margin-bottom: 12px;
+    color: var(--text-secondary);
+}
+
+.help-content code {
+    background: rgba(255, 255, 255, 0.6);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: 'Menlo', 'Monaco', 'Consolas', monospace;
+    font-size: 0.9em;
+    color: var(--primary-color);
+}
+
+/* 动画 */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideDown {
+    from {
+        transform: translateY(-30px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* ============================================
+   响应式设计
+   ============================================ */
+@media (max-width: 1200px) {
+    .game-main {
+        grid-template-columns: 320px 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .game-main {
+        grid-template-columns: 1fr;
+    }
+    
+    .left-panel {
+        order: 2;
+    }
+    
+    .right-panel {
+        order: 1;
+    }
+    
+    .top-bar-content {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .top-bar-right {
+        width: 100%;
+        justify-content: space-between;
+    }
+    
+    .bottom-panel {
+        flex-direction: column;
+    }
+    
+    .weight-section {
+        width: 100%;
+    }
+    
+    .compass-grid {
+        max-width: 150px;
+    }
+    
+    .inventory-fab {
+        bottom: 16px;
+        right: 16px;
+        width: 56px;
+        height: 56px;
+        font-size: 1.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .login-container {
+        padding: 30px 20px;
+    }
+    
+    .login-title {
+        font-size: 2rem;
+    }
+    
+    .game-title {
+        font-size: 1.2rem;
+    }
+    
+    .room-title {
+        font-size: 1.2rem;
+    }
+    
+    .log-section {
+        min-height: 400px;
+        max-height: 500px;
+    }
+    
+    .inventory-grid {
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+        gap: 12px;
+    }
+}
