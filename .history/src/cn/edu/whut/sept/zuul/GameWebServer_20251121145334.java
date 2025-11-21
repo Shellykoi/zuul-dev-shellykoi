@@ -414,16 +414,6 @@ public class GameWebServer {
         // 去除不可见字符（如零宽空格等）
         path = path.replaceAll("[\\u200B-\\u200D\\uFEFF]", "");
         
-        // 移除查询参数（?之后的部分）和锚点（#之后的部分）
-        int queryIndex = path.indexOf('?');
-        if (queryIndex >= 0) {
-            path = path.substring(0, queryIndex);
-        }
-        int fragmentIndex = path.indexOf('#');
-        if (fragmentIndex >= 0) {
-            path = path.substring(0, fragmentIndex);
-        }
-        
         // URL解码（只在路径包含编码字符时才解码）
         if (path.contains("%")) {
             try {

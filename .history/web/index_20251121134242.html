@@ -7,8 +7,6 @@
     <link rel="stylesheet" href="style.css">
     <!-- Lottie-Web 库 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
-
-    <script type="module" src="https://unpkg.com/@splinetool/viewer@1.12.0/build/spline-viewer.js"></script>
 </head>
 <body>
     <!-- 动态背景 -->
@@ -167,11 +165,6 @@
 
             <!-- 右侧：日志 + 输入 -->
             <section class="right-panel">
-                <!-- Spline 3D 交互效果 -->
-                <div class="spline-viewer-container">
-                    <spline-viewer url="https://prod.spline.design/HPbL1AL6VxxOyWZc/scene.splinecode"></spline-viewer>
-                </div>
-                
                 <!-- 游戏日志 -->
                 <div class="log-section">
                     <div class="log-header">
@@ -263,21 +256,6 @@
             <div class="modal-body">
                 <div class="help-content" id="help-content">
                     <!-- 帮助内容将动态插入 -->
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- 游戏记录对话框 -->
-    <div class="modal" id="record-modal">
-        <div class="modal-content modal-large">
-            <div class="modal-header">
-                <h3>📊 游戏记录</h3>
-                <button class="modal-close" id="record-modal-close">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div class="record-content" id="record-content">
-                    <div class="record-loading">正在加载游戏记录...</div>
                 </div>
             </div>
         </div>

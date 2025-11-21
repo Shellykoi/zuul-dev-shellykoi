@@ -236,9 +236,6 @@ public class GameWebServer {
         System.out.println("  normalizedPath.equals(\"/api/login\"): " + normalizedPath.equals("/api/login"));
         System.out.println("  normalizedPath.equals(\"/api/command\"): " + normalizedPath.equals("/api/command"));
         System.out.println("  normalizedPath.equals(\"/api/status\"): " + normalizedPath.equals("/api/status"));
-        System.out.println("  normalizedPath.equals(\"/api/gamerecord\"): " + normalizedPath.equals("/api/gamerecord"));
-        System.out.println("  normalizedPath.equals(\"/api/gamerecords\"): " + normalizedPath.equals("/api/gamerecords"));
-        System.out.println("  normalizedPath.equals(\"/api/logout\"): " + normalizedPath.equals("/api/logout"));
         System.out.println("  normalizedMethod: [" + normalizedMethod + "]");
         System.out.println("  normalizedMethod.equals(\"POST\"): " + normalizedMethod.equals("POST"));
         System.out.println("  normalizedMethod.equals(\"GET\"): " + normalizedMethod.equals("GET"));
@@ -325,9 +322,7 @@ public class GameWebServer {
                 }
             } else if (normalizedPath.equals("/api/gamerecord") && normalizedMethod.equals("GET")) {
                 // 获取游戏记录
-                System.out.println("✅ 匹配到 /api/gamerecord 端点");
                 String sessionId = getQueryParameter(path, "sessionId");
-                System.out.println("提取的 sessionId: " + (sessionId != null ? sessionId : "(null)"));
                 if (sessionId == null || sessionId.isEmpty()) {
                     Map<String, Object> error = new HashMap<>();
                     error.put("success", false);
@@ -367,12 +362,9 @@ public class GameWebServer {
                 // 未匹配到任何路由，输出详细调试信息
                 System.err.println("❌ 未匹配的API端点:");
                 System.err.println("  方法: " + method);
-                System.err.println("  规范化方法: " + normalizedMethod);
                 System.err.println("  路径: " + path);
                 System.err.println("  规范化路径: " + normalizedPath);
-                System.err.println("  规范化路径长度: " + normalizedPath.length());
-                System.err.println("  规范化路径字节: " + java.util.Arrays.toString(normalizedPath.getBytes()));
-                System.err.println("  支持的端点: /api/register, /api/login, /api/command, /api/status, /api/save, /api/load, /api/gamerecord, /api/gamerecords, /api/logout");
+                System.err.println("  支持的端点: /api/register, /api/login, /api/command, /api/status, /api/save, /api/load");
                 
                 final String finalPath = path;
                 Map<String, Object> error = new HashMap<>();
@@ -414,28 +406,12 @@ public class GameWebServer {
         // 去除不可见字符（如零宽空格等）
         path = path.replaceAll("[\\u200B-\\u200D\\uFEFF]", "");
         
-        // 移除查询参数（?之后的部分）和锚点（#之后的部分）
-        int queryIndex = path.indexOf('?');
-        if (queryIndex >= 0) {
-            path = path.substring(0, queryIndex);
-        }
-        int fragmentIndex = path.indexOf('#');
-        if (fragmentIndex >= 0) {
-            path = path.substring(0, fragmentIndex);
-        }
-        
-        // URL解码（只在路径包含编码字符时才解码）
-        if (path.contains("%")) {
-            try {
-                String decodedPath = java.net.URLDecoder.decode(path, "UTF-8");
-                // 只有当解码后的路径不同且不包含特殊字符时才使用解码后的路径
-                if (!decodedPath.equals(path) && !decodedPath.contains("\0")) {
-                    path = decodedPath;
-                }
-            } catch (Exception e) {
-                // 如果解码失败，使用原始路径
-                System.err.println("URL解码失败: " + e.getMessage());
-            }
+        // URL解码（处理可能的编码字符）
+        try {
+            // 简单的URL解码，处理常见的编码
+            path = java.net.URLDecoder.decode(path, "UTF-8");
+        } catch (Exception e) {
+            // 如果解码失败，使用原始路径
         }
         
         // 确保以/开头
@@ -534,27 +510,16 @@ public class GameWebServer {
      * 从URL中获取查询参数
      */
     private String getQueryParameter(String path, String paramName) {
-        if (path == null || paramName == null) {
-            return null;
-        }
-        
         int queryIndex = path.indexOf('?');
         if (queryIndex == -1) {
             return null;
         }
-        
         String query = path.substring(queryIndex + 1);
         String[] params = query.split("&");
         for (String param : params) {
-            String[] parts = param.split("=", 2);
+            String[] parts = param.split("=");
             if (parts.length == 2 && parts[0].equals(paramName)) {
-                try {
-                    // URL解码参数值
-                    return java.net.URLDecoder.decode(parts[1], "UTF-8");
-                } catch (Exception e) {
-                    // 如果解码失败，返回原始值
-                    return parts[1];
-                }
+                return parts[1];
             }
         }
         return null;

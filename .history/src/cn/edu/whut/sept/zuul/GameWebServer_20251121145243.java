@@ -325,9 +325,7 @@ public class GameWebServer {
                 }
             } else if (normalizedPath.equals("/api/gamerecord") && normalizedMethod.equals("GET")) {
                 // 获取游戏记录
-                System.out.println("✅ 匹配到 /api/gamerecord 端点");
                 String sessionId = getQueryParameter(path, "sessionId");
-                System.out.println("提取的 sessionId: " + (sessionId != null ? sessionId : "(null)"));
                 if (sessionId == null || sessionId.isEmpty()) {
                     Map<String, Object> error = new HashMap<>();
                     error.put("success", false);
@@ -413,16 +411,6 @@ public class GameWebServer {
         
         // 去除不可见字符（如零宽空格等）
         path = path.replaceAll("[\\u200B-\\u200D\\uFEFF]", "");
-        
-        // 移除查询参数（?之后的部分）和锚点（#之后的部分）
-        int queryIndex = path.indexOf('?');
-        if (queryIndex >= 0) {
-            path = path.substring(0, queryIndex);
-        }
-        int fragmentIndex = path.indexOf('#');
-        if (fragmentIndex >= 0) {
-            path = path.substring(0, fragmentIndex);
-        }
         
         // URL解码（只在路径包含编码字符时才解码）
         if (path.contains("%")) {
