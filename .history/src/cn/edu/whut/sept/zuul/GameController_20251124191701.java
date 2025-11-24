@@ -484,12 +484,8 @@ public class GameController {
             output.append("  back       - 返回上一个房间\n");
             output.append("  take <物品> - 拾取房间内的物品\n");
             output.append("  drop <物品> - 丢弃身上的物品\n");
-            output.append("  use <物品>  - 使用背包中的物品（如钥匙、地图等）\n");
             output.append("  items      - 查看房间和身上的物品\n");
             output.append("  eat cookie  - 吃掉魔法饼干（增加负重）\n");
-            output.append("  status     - 查看游戏进度\n");
-            output.append("  save       - 保存游戏状态\n");
-            output.append("  load       - 加载游戏状态\n");
             output.append("  help       - 显示此帮助信息\n");
             output.append("  quit       - 退出游戏");
         } else {
@@ -508,19 +504,6 @@ public class GameController {
             output.append("\n🎉 恭喜！你已完成所有任务，游戏通关！");
         }
         return output.toString();
-    }
-    
-    /**
-     * 将方向翻译为中文（辅助方法）
-     */
-    private String translateDirection(String direction) {
-        switch (direction.toLowerCase()) {
-            case "north": return "北";
-            case "south": return "南";
-            case "east": return "东";
-            case "west": return "西";
-            default: return direction;
-        }
     }
     
     /**

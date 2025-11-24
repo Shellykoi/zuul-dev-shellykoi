@@ -511,19 +511,6 @@ public class GameController {
     }
     
     /**
-     * 将方向翻译为中文（辅助方法）
-     */
-    private String translateDirection(String direction) {
-        switch (direction.toLowerCase()) {
-            case "north": return "北";
-            case "south": return "南";
-            case "east": return "东";
-            case "west": return "西";
-            default: return direction;
-        }
-    }
-    
-    /**
      * 保存游戏状态
      */
     public Map<String, Object> saveGame(String sessionId) {

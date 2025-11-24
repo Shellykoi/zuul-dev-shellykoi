@@ -120,10 +120,8 @@ public class Game
         transporter.setExit("west", outside);
 
         // 添加物品到房间
-        // 钥匙：可使用的物品，用于解锁上锁的房间
-        outside.addItem(new Item("key", "一把生锈的旧钥匙", 0.1, "KEY", "可以解锁上锁的房间"));
-        // 地图：可使用的物品，显示房间详细信息
-        outside.addItem(new Item("map", "一张校园地图", 0.2, "MAP", "显示当前位置的详细信息"));
+        outside.addItem(new Item("key", "一把生锈的旧钥匙", 0.1));
+        outside.addItem(new Item("map", "一张校园地图", 0.2));
         
         theater.addItem(new Item("book", "一本编程教科书", 1.5));
         

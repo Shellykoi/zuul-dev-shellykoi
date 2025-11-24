@@ -1884,20 +1884,6 @@ async function showItemSelection(action) {
                 addOutputMessage('你没有携带任何物品！', 'error');
                 return;
             }
-        } else if (action === 'use') {
-            if (gameState.player && gameState.player.inventory) {
-                // 只显示可使用的物品
-                items = gameState.player.inventory.filter(item => item.usable);
-                title = '选择要使用的物品';
-            } else {
-                addOutputMessage('你没有携带任何物品！', 'error');
-                return;
-            }
-            
-            if (items.length === 0) {
-                addOutputMessage('你没有可使用的物品！', 'error');
-                return;
-            }
         }
         
         if (items.length === 0) {

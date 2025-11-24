@@ -106,58 +106,6 @@ public class Item
     }
 
     /**
-     * 获取物品类型。
-     * 
-     * @return 物品类型
-     */
-    public String getItemType()
-    {
-        return itemType;
-    }
-    
-    /**
-     * 检查物品是否可以使用。
-     * 
-     * @return 如果可以使用返回true，否则返回false
-     */
-    public boolean isUsable()
-    {
-        return usable;
-    }
-    
-    /**
-     * 获取物品使用效果描述。
-     * 
-     * @return 使用效果描述
-     */
-    public String getUseEffect()
-    {
-        return useEffect;
-    }
-    
-    /**
-     * 设置物品类型。
-     * 
-     * @param itemType 物品类型
-     */
-    public void setItemType(String itemType)
-    {
-        this.itemType = itemType;
-        this.usable = true;
-    }
-    
-    /**
-     * 设置物品使用效果。
-     * 
-     * @param useEffect 使用效果描述
-     */
-    public void setUseEffect(String useEffect)
-    {
-        this.useEffect = useEffect;
-        this.usable = true;
-    }
-
-    /**
      * 返回物品的字符串表示。
      * 格式为："名称 (描述) - 重量kg"
      * 
