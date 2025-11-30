@@ -55,39 +55,14 @@ public class GameController {
     }
     
     /**
-     * 生成唯一的会话ID。
-     * 
-     * <p>会话ID格式：session_[时间戳]_[随机数(0-9999)]
-     * 使用时间戳和随机数组合，确保会话ID的唯一性。
-     * 
-     * @return 生成的会话ID字符串
+     * 生成会话ID
      */
     private String generateSessionId() {
         return "session_" + System.currentTimeMillis() + "_" + (int)(Math.random() * 10000);
     }
     
     /**
-     * 注册新用户。
-     * 
-     * <p>注册流程：
-     * <ol>
-     *   <li>验证用户名和密码是否为空</li>
-     *   <li>检查用户名是否已存在</li>
-     *   <li>调用数据库管理器注册用户</li>
-     *   <li>注册成功后自动登录并创建游戏会话</li>
-     * </ol>
-     * 
-     * <p>返回的响应Map包含以下字段：
-     * <ul>
-     *   <li><code>success</code>: 注册是否成功（boolean）</li>
-     *   <li><code>message</code>: 操作结果消息（String）</li>
-     *   <li><code>sessionId</code>: 会话ID（String，仅在成功时返回）</li>
-     *   <li><code>username</code>: 用户名（String，仅在成功时返回）</li>
-     * </ul>
-     * 
-     * @param username 用户名，不能为空或仅包含空白字符
-     * @param password 密码，不能为空或仅包含空白字符
-     * @return 包含操作结果的Map对象，格式为 {"success": boolean, "message": String, ...}
+     * 注册新用户
      */
     public Map<String, Object> register(String username, String password) {
         Map<String, Object> response = new HashMap<>();
@@ -134,29 +109,7 @@ public class GameController {
     }
     
     /**
-     * 用户登录方法。
-     * 
-     * <p>登录流程：
-     * <ol>
-     *   <li>验证用户名和密码是否为空</li>
-     *   <li>调用数据库管理器验证用户凭据</li>
-     *   <li>验证成功后创建或更新游戏会话</li>
-     *   <li>返回会话ID和用户信息</li>
-     * </ol>
-     * 
-     * <p>如果用户已有会话，会先移除旧会话再创建新会话，确保每次登录都是新游戏。
-     * 
-     * <p>返回的响应Map包含以下字段：
-     * <ul>
-     *   <li><code>success</code>: 登录是否成功（boolean）</li>
-     *   <li><code>message</code>: 操作结果消息（String）</li>
-     *   <li><code>sessionId</code>: 会话ID（String，仅在成功时返回）</li>
-     *   <li><code>username</code>: 用户名（String，仅在成功时返回）</li>
-     * </ul>
-     * 
-     * @param username 用户名，不能为空或仅包含空白字符
-     * @param password 密码，不能为空或仅包含空白字符
-     * @return 包含操作结果的Map对象，格式为 {"success": boolean, "message": String, ...}
+     * 用户登录
      */
     public Map<String, Object> login(String username, String password) {
         Map<String, Object> response = new HashMap<>();

@@ -139,7 +139,7 @@ public class Room
      * @param direction 要查询的方向
      * @return 该方向对应的房间对象，如果该方向没有出口则返回null
      */
-    public Room getExitDirectly(String direction)
+    protected Room getExitDirectly(String direction)
     {
         return exits.get(direction);
     }

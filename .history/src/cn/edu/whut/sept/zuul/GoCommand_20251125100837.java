@@ -68,14 +68,6 @@ public class GoCommand implements CommandExecutor
                 // 先记录传输房间的访问
                 player.setCurrentRoom(nextRoom);
                 Room randomRoom = transporter.getRandomRoom();
-                // 如果传送到未解锁的上锁房间，重新选择一个已解锁的房间
-                int attempts = 0;
-                while (randomRoom instanceof LockedRoom && 
-                       !((LockedRoom) randomRoom).isUnlocked() && 
-                       attempts < 10) {
-                    randomRoom = transporter.getRandomRoom();
-                    attempts++;
-                }
                 if (randomRoom != null) {
                     System.out.println("你踏入了一个神秘的传输房间...");
                     System.out.println("突然，你被传送到另一个位置！");

@@ -205,11 +205,6 @@ public class Game
         }
 
         String commandWord = command.getCommandWord();
-        if (commandWord == null) {
-            System.out.println("我不知道你在说什么...");
-            return false;
-        }
-        
         CommandExecutor executor = commandExecutors.get(commandWord);
         
         if (executor != null) {

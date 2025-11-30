@@ -1429,7 +1429,7 @@ function updateUI() {
         // 从completion数据获取已访问房间数，如果没有则从player.visitedRooms获取
         const visitedCount = gameState.completion?.roomsExplored || 
                             gameState.player.visitedRooms?.length || 0;
-        const totalRooms = gameState.completion?.totalRooms || 7;
+        const totalRooms = gameState.completion?.totalRooms || 6;
         
         // 更新顶部状态栏
         const weightTextHeader = document.getElementById('weight-text-header');
@@ -2027,10 +2027,6 @@ async function showRecordModal() {
             return;
         }
         
-        // 获取总房间数和总物品数（从gameState或使用默认值）
-        const totalRooms = gameState.completion?.totalRooms || 7;
-        const totalItems = gameState.completion?.totalItems || 9;
-        
         // 格式化显示游戏记录
         const startTime = record.startTime ? new Date(record.startTime).toLocaleString('zh-CN') : '未知';
         const endTime = record.endTime ? new Date(record.endTime).toLocaleString('zh-CN') : '游戏进行中';
@@ -2059,11 +2055,11 @@ async function showRecordModal() {
                     </div>
                     <div class="record-info-item">
                         <span class="record-label">已探索房间:</span>
-                        <span class="record-value">${record.roomsExplored} / ${totalRooms}</span>
+                        <span class="record-value">${record.roomsExplored} / 6</span>
                     </div>
                     <div class="record-info-item">
                         <span class="record-label">已收集物品:</span>
-                        <span class="record-value">${record.itemsCollected} / ${totalItems}</span>
+                        <span class="record-value">${record.itemsCollected} / 7</span>
                     </div>
                     <div class="record-info-item">
                         <span class="record-label">魔法饼干:</span>
@@ -2076,16 +2072,16 @@ async function showRecordModal() {
                     <div class="progress-item">
                         <label>房间探索进度:</label>
                         <div class="progress-bar">
-                            <div class="progress-fill" style="width: ${(record.roomsExplored / totalRooms) * 100}%"></div>
+                            <div class="progress-fill" style="width: ${(record.roomsExplored / 6) * 100}%"></div>
                         </div>
-                        <span>${record.roomsExplored} / ${totalRooms}</span>
+                        <span>${record.roomsExplored} / 6</span>
                     </div>
                     <div class="progress-item">
                         <label>物品收集进度:</label>
                         <div class="progress-bar">
-                            <div class="progress-fill" style="width: ${(record.itemsCollected / totalItems) * 100}%"></div>
+                            <div class="progress-fill" style="width: ${(record.itemsCollected / 7) * 100}%"></div>
                         </div>
-                        <span>${record.itemsCollected} / ${totalItems}</span>
+                        <span>${record.itemsCollected} / 7</span>
                     </div>
                 </div>
                 

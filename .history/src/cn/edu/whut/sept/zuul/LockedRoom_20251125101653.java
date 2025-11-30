@@ -144,14 +144,7 @@ public class LockedRoom extends Room
     }
     
     /**
-     * 将方向英文名称翻译为中文。
-     * 
-     * <p>此方法用于在房间描述中显示中文方向信息，提升用户体验。
-     * 支持的方向：north(北)、south(南)、east(东)、west(西)。
-     * 
-     * @param direction 方向的英文名称（不区分大小写）
-     * @return 对应的中文方向名称，如果方向未知则返回原始字符串
-     * @see Room#getLongDescription()
+     * 将方向翻译为中文（与Room类中的方法保持一致）
      */
     private String translateDirection(String direction) {
         switch(direction.toLowerCase()) {

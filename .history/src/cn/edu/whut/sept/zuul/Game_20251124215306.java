@@ -131,7 +131,7 @@ public class Game
         // 钥匙：可使用的物品，用于解锁上锁的房间
         outside.addItem(new Item("key", "一把生锈的旧钥匙", 0.1, "KEY", "可以解锁上锁的房间"));
         // 地图：可使用的物品，显示房间详细信息
-        pub.addItem(new Item("map", "一张校园地图", 0.2, "MAP", "显示当前位置的详细信息"));
+        outside.addItem(new Item("map", "一张校园地图", 0.2, "MAP", "显示当前位置的详细信息"));
         
         theater.addItem(new Item("book", "一本编程教科书", 1.5));
         
@@ -140,9 +140,6 @@ public class Game
         
         lab.addItem(new Item("computer", "一台笔记本电脑", 2.5));
         lab.addItem(new Item("cable", "一根USB线", 0.1));
-        
-        // 宝库中有特殊物品
-        treasureRoom.addItem(new Item("treasure", "一个神秘的宝箱", 3.0));
         
         // 在随机房间添加魔法饼干
         Random random = new Random();
@@ -205,11 +202,6 @@ public class Game
         }
 
         String commandWord = command.getCommandWord();
-        if (commandWord == null) {
-            System.out.println("我不知道你在说什么...");
-            return false;
-        }
-        
         CommandExecutor executor = commandExecutors.get(commandWord);
         
         if (executor != null) {

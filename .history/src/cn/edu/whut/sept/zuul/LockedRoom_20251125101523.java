@@ -92,66 +92,54 @@ public class LockedRoom extends Room
     @Override
     public String getLongDescription()
     {
-        // 构建出口信息字符串
-        String exitString = buildExitString();
-        
-        // 构建物品信息字符串
-        String itemsString = getItemsString();
+        // 获取基础描述（包括出口信息）
+        String baseDescription = super.getLongDescription();
         
         if (!isUnlocked) {
-            // 房间未解锁时，显示锁定提示和出口信息
-            String result = "你在" + getShortDescription() + "。\n" +
-                           "提示：这扇门是锁着的！你需要使用 " + requiredKeyType + " 来解锁。\n" +
-                           "提示：输入 'use key' 命令可以解锁上锁的房间，然后才能进入拾取宝藏！";
-            
-            // 添加出口信息（如果有）
-            if (!exitString.isEmpty()) {
-                result += "\n" + exitString;
+            // 房间未解锁时，添加锁定提示
+            // 从基础描述中提取出口信息（从"出口:"开始的部分）
+            String exitInfo = "";
+            if (baseDescription.contains("出口:")) {
+                int exitIndex = baseDescription.indexOf("出口:");
+                exitInfo = baseDescription.substring(exitIndex);
+            } else {
+                // 如果没有找到"出口:"，尝试构建出口信息
+                // 获取所有出口方向
+                java.util.Set<String> exitDirections = getExitsSet();
+                if (!exitDirections.isEmpty()) {
+                    exitInfo = "出口:";
+                    for (String dir : exitDirections) {
+                        exitInfo += " " + translateDirection(dir);
+                    }
+                }
             }
             
-            // 添加物品信息（如果有）
-            if (!itemsString.isEmpty() && !itemsString.contains("没有物品")) {
-                result += "\n" + itemsString;
-            }
-            
-            return result;
+            return "你在" + getShortDescription() + "。\n" +
+                   "提示：这扇门是锁着的！你需要使用 " + requiredKeyType + " 来解锁。" +
+                   "\n提示：输入 'use key' 命令可以解锁上锁的房间，然后才能进入拾取宝藏！\n" +
+                   (exitInfo.isEmpty() ? "" : exitInfo);
         }
-        
-        // 房间已解锁，使用父类的标准描述
-        return super.getLongDescription();
+        return baseDescription;
     }
     
     /**
-     * 构建出口信息字符串。
-     * 通过检查每个方向是否有出口来构建。
-     * 
-     * @return 出口信息字符串，格式为"出口: 北 南 ..."
+     * 获取所有出口方向的集合（用于构建出口信息）
+     * 这个方法访问父类的私有字段，需要通过反射或公开方法来实现
+     * 作为临时方案，我们可以通过尝试所有方向来获取出口
      */
-    private String buildExitString() {
-        String returnString = "出口:";
+    private java.util.Set<String> getExitsSet() {
+        java.util.Set<String> exits = new java.util.HashSet<>();
         String[] directions = {"north", "south", "east", "west"};
-        boolean hasAnyExit = false;
-        
         for (String dir : directions) {
             if (getExit(dir) != null) {
-                returnString += " " + translateDirection(dir);
-                hasAnyExit = true;
+                exits.add(dir);
             }
         }
-        
-        // 如果没有出口，返回空字符串
-        return hasAnyExit ? returnString : "";
+        return exits;
     }
     
     /**
-     * 将方向英文名称翻译为中文。
-     * 
-     * <p>此方法用于在房间描述中显示中文方向信息，提升用户体验。
-     * 支持的方向：north(北)、south(南)、east(东)、west(西)。
-     * 
-     * @param direction 方向的英文名称（不区分大小写）
-     * @return 对应的中文方向名称，如果方向未知则返回原始字符串
-     * @see Room#getLongDescription()
+     * 将方向翻译为中文（与Room类中的方法保持一致）
      */
     private String translateDirection(String direction) {
         switch(direction.toLowerCase()) {

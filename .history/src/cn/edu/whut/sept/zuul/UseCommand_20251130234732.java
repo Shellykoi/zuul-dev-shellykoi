@@ -157,59 +157,35 @@ public class UseCommand implements CommandExecutor
     }
     
     /**
-     * 使用地图显示当前位置的详细信息。
+     * 使用地图显示隐藏信息。
      * 
-     * <p>地图功能：
-     * <ul>
-     *   <li>显示当前房间的完整描述信息</li>
-     *   <li>列出所有可用的出口方向及对应房间</li>
-     *   <li>帮助玩家了解周围环境</li>
-     * </ul>
-     * 
-     * <p>输出格式：
-     * <pre>
-     *   你打开了地图，查看当前位置的详细信息：
-     *   [房间详细描述]
-     *   
-     *   地图显示：
-     *   - 当前房间：[房间名称]
-     *   - 出口信息：
-     *     北 -> [目标房间名称]
-     *     南 -> [目标房间名称]
-     *   ...
-     * </pre>
-     * 
-     * @param map 地图物品对象（当前版本未直接使用，保留用于未来扩展）
-     * @param currentRoom 玩家当前所在的房间对象
-     * @return 格式化的地图信息字符串，包含房间描述和出口信息
+     * @param map 地图物品
+     * @param currentRoom 当前房间
+     * @return 使用结果描述
      */
     private String useMap(Item map, Room currentRoom)
     {
         StringBuilder result = new StringBuilder();
-        // 添加地图使用提示和房间详细描述
         result.append("你打开了地图，查看当前位置的详细信息：\n");
         result.append(currentRoom.getLongDescription());
         result.append("\n\n地图显示：");
         result.append("\n- 当前房间：").append(currentRoom.getShortDescription());
         
-        // 遍历所有方向，收集并显示出口信息
+        // 显示所有出口
         String[] directions = {"north", "south", "east", "west"};
         boolean hasExits = false;
         for (String direction : directions) {
             Room exitRoom = currentRoom.getExit(direction);
             if (exitRoom != null) {
-                // 第一次找到出口时，添加"出口信息："标题
                 if (!hasExits) {
                     result.append("\n- 出口信息：");
                     hasExits = true;
                 }
-                // 添加出口方向（中文）和目标房间名称
                 result.append("\n  ").append(translateDirection(direction))
                       .append(" -> ").append(exitRoom.getShortDescription());
             }
         }
         
-        // 如果没有找到任何出口，提示这是一个封闭的房间
         if (!hasExits) {
             result.append("\n- 这是一个封闭的房间，没有出口。");
         }

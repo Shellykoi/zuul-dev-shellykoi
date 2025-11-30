@@ -205,17 +205,15 @@ public class Game
         }
 
         String commandWord = command.getCommandWord();
-        if (commandWord == null) {
-            System.out.println("我不知道你在说什么...");
-            return false;
-        }
-        
         CommandExecutor executor = commandExecutors.get(commandWord);
         
         if (executor != null) {
             return executor.execute(command, this);
         } else {
+            // 调试信息：检查命令是否在映射表中
             System.out.println("我不知道你在说什么...");
+            System.out.println("调试：命令词 = '" + commandWord + "'");
+            System.out.println("调试：可用命令 = " + commandExecutors.keySet());
             return false;
         }
     }

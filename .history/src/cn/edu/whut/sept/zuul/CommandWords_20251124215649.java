@@ -32,9 +32,6 @@ public class CommandWords
      */
     public boolean isCommand(String aString)
     {
-        if (aString == null) {
-            return false;
-        }
         for(int i = 0; i < validCommands.length; i++) {
             if(validCommands[i].equals(aString))
                 return true;

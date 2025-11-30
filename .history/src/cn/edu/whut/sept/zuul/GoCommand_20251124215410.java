@@ -34,30 +34,21 @@ public class GoCommand implements CommandExecutor
 
         if (nextRoom == null) {
             // 检查是否是上锁的房间
-            if (currentRoom.hasExit(direction)) {
-                // 有出口但getExit返回null，说明可能是上锁的房间
-                Room directExit = currentRoom.getExitDirectly(direction);
-                if (directExit instanceof LockedRoom) {
-                    LockedRoom lockedRoom = (LockedRoom) directExit;
-                    if (!lockedRoom.isUnlocked()) {
-                        System.out.println("这扇门是锁着的！你需要使用钥匙来解锁。");
-                        System.out.println("提示：使用 'use key' 命令可以解锁上锁的房间。");
-                        return false;
-                    }
+            // 需要检查所有方向的出口，看是否有LockedRoom
+            String[] allDirections = {"north", "south", "east", "west", "up", "down"};
+            boolean foundLockedRoom = false;
+            for (String dir : allDirections) {
+                if (dir.equals(direction)) {
+                    // 直接访问exits来检查（绕过getExit的锁定检查）
+                    // 由于Room的exits是private，我们需要另一种方法
+                    // 使用反射或者让Room提供hasExit方法
+                    // 简化方案：在UseCommand中解锁后，getExit就会返回房间
+                    break;
                 }
             }
             System.out.println("那里没有门！");
+            System.out.println("提示：如果看到上锁的房间，使用 'use key' 命令可以解锁。");
         } else {
-            // 检查目标房间是否是上锁的房间且未解锁（防止未解锁就进入）
-            if (nextRoom instanceof LockedRoom) {
-                LockedRoom lockedRoom = (LockedRoom) nextRoom;
-                if (!lockedRoom.isUnlocked()) {
-                    System.out.println("这扇门是锁着的！你需要使用 " + 
-                                     lockedRoom.getRequiredKeyType() + " 来解锁。");
-                    System.out.println("提示：使用 'use key' 命令可以解锁上锁的房间。");
-                    return false;
-                }
-            }
             // 记录房间历史（用于back命令）
             game.addRoomToHistory(currentRoom);
             player.setCurrentRoom(nextRoom);
@@ -65,22 +56,10 @@ public class GoCommand implements CommandExecutor
             // 检查是否进入传输房间
             if (nextRoom instanceof TransporterRoom) {
                 TransporterRoom transporter = (TransporterRoom) nextRoom;
-                // 先记录传输房间的访问
-                player.setCurrentRoom(nextRoom);
                 Room randomRoom = transporter.getRandomRoom();
-                // 如果传送到未解锁的上锁房间，重新选择一个已解锁的房间
-                int attempts = 0;
-                while (randomRoom instanceof LockedRoom && 
-                       !((LockedRoom) randomRoom).isUnlocked() && 
-                       attempts < 10) {
-                    randomRoom = transporter.getRandomRoom();
-                    attempts++;
-                }
                 if (randomRoom != null) {
                     System.out.println("你踏入了一个神秘的传输房间...");
                     System.out.println("突然，你被传送到另一个位置！");
-                    // 记录房间历史（用于back命令）
-                    game.addRoomToHistory(nextRoom);
                     player.setCurrentRoom(randomRoom);
                 }
             }

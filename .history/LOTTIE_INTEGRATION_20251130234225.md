@@ -82,3 +82,5 @@
 3. 如果动画文件路径不同，需要修改 `initCharacterAnimation()` 中的 `animationPath`
 4. 背包面板的展开/收起动画使用了 CSS transition，确保浏览器支持
 
+
+

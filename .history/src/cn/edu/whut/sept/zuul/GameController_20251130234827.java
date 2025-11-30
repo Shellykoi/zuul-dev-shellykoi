@@ -134,29 +134,7 @@ public class GameController {
     }
     
     /**
-     * 用户登录方法。
-     * 
-     * <p>登录流程：
-     * <ol>
-     *   <li>验证用户名和密码是否为空</li>
-     *   <li>调用数据库管理器验证用户凭据</li>
-     *   <li>验证成功后创建或更新游戏会话</li>
-     *   <li>返回会话ID和用户信息</li>
-     * </ol>
-     * 
-     * <p>如果用户已有会话，会先移除旧会话再创建新会话，确保每次登录都是新游戏。
-     * 
-     * <p>返回的响应Map包含以下字段：
-     * <ul>
-     *   <li><code>success</code>: 登录是否成功（boolean）</li>
-     *   <li><code>message</code>: 操作结果消息（String）</li>
-     *   <li><code>sessionId</code>: 会话ID（String，仅在成功时返回）</li>
-     *   <li><code>username</code>: 用户名（String，仅在成功时返回）</li>
-     * </ul>
-     * 
-     * @param username 用户名，不能为空或仅包含空白字符
-     * @param password 密码，不能为空或仅包含空白字符
-     * @return 包含操作结果的Map对象，格式为 {"success": boolean, "message": String, ...}
+     * 用户登录
      */
     public Map<String, Object> login(String username, String password) {
         Map<String, Object> response = new HashMap<>();

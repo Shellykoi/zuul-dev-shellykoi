@@ -1429,7 +1429,7 @@ function updateUI() {
         // 从completion数据获取已访问房间数，如果没有则从player.visitedRooms获取
         const visitedCount = gameState.completion?.roomsExplored || 
                             gameState.player.visitedRooms?.length || 0;
-        const totalRooms = gameState.completion?.totalRooms || 7;
+        const totalRooms = gameState.completion?.totalRooms || 6;
         
         // 更新顶部状态栏
         const weightTextHeader = document.getElementById('weight-text-header');
