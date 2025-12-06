@@ -10,6 +10,11 @@ package cn.edu.whut.sept.zuul;
 public class Item
 {
     /**
+     * 普通物品类型常量。
+     */
+    public static final String ITEM_TYPE_NORMAL = "NORMAL";
+    
+    /**
      * 物品的名称。
      */
     private String name;
@@ -52,7 +57,7 @@ public class Item
         this.name = name;
         this.description = description;
         this.weight = weight;
-        this.itemType = "NORMAL";  // 默认物品类型为普通物品，不可使用
+        this.itemType = ITEM_TYPE_NORMAL;  // 默认物品类型为普通物品，不可使用
         this.usable = false;
         this.useEffect = "";
     }
