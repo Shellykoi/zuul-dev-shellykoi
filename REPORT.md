@@ -1977,17 +1977,17 @@ private static boolean testAddAndRemoveItem() {
  */
 private static boolean testTakeItemExceedsWeight() {
     try {
-        Player player = new Player("TestPlayer", 10.0);
-        player.takeItem(new Item("item1", "物品1", 6.0));
-        
-        Item heavyItem = new Item("heavy", "重物", 5.0);
+    Player player = new Player("TestPlayer", 10.0);
+    player.takeItem(new Item("item1", "物品1", 6.0));
+    
+    Item heavyItem = new Item("heavy", "重物", 5.0);
         if (player.canCarry(heavyItem)) {
             System.out.println("  错误: 应该无法携带超重物品");
             return false;
         }
-        
+    
         // 尝试拾取应该失败
-        int beforeSize = player.getInventory().size();
+    int beforeSize = player.getInventory().size();
         boolean success = player.takeItem(heavyItem);
         if (success || player.getInventory().size() != beforeSize) {
             System.out.println("  错误: 超重物品不应该被拾取");
@@ -2034,17 +2034,17 @@ private static boolean testTakeItemExceedsWeight() {
  */
 private static boolean testValidDirection() {
     try {
-        Game game = new Game();
-        Player player = game.getPlayer();
-        Room startRoom = player.getCurrentRoom();
-        
+    Game game = new Game();
+    Player player = game.getPlayer();
+    Room startRoom = player.getCurrentRoom();
+    
         // 创建测试房间
         Room testRoom = new Room("测试房间");
         startRoom.setExit("north", testRoom);
         
         // 执行go命令
-        GoCommand goCommand = new GoCommand();
-        Command command = new Command("go", "north");
+    GoCommand goCommand = new GoCommand();
+    Command command = new Command("go", "north");
         goCommand.execute(command, game);
         
         // 验证玩家已移动到新房间
@@ -2472,7 +2472,405 @@ use map    // 使用地图查看详细信息
 
 ---
 
-## 八、项目总结
+## 八、代码版本管理
+
+### 8.1 版本控制规范
+
+本项目采用规范的Git版本管理流程，确保代码提交历史清晰、可追溯。
+
+#### 8.1.1 提交信息规范
+
+采用Conventional Commits格式，提交信息包含类型和简短描述：
+
+- **feat**: 新功能（feature）
+- **fix**: 修复bug
+- **refactor**: 重构代码
+- **docs**: 文档更新
+- **style**: 代码格式调整（不影响功能）
+- **test**: 测试相关
+- **chore**: 构建过程或辅助工具的变动
+
+**提交格式示例：**
+```
+feat: add optional debug logging utility
+fix: improve Item class constructor comments
+refactor: extract magic values as constants
+docs: add code version management section
+```
+
+#### 8.1.2 分支管理策略
+
+项目采用清晰的分支管理策略：
+
+- **master**: 主分支，稳定版本，用于生产环境
+- **dev**: 开发分支，集成新功能，用于日常开发
+- **feat/**: 功能分支，开发新功能（如 `feat/logging`）
+- **fix/**: 修复分支，修复bug（如 `fix/improve-comments`）
+- **refactor/**: 重构分支，代码重构（如 `refactor/extract-constants`）
+- **docs/**: 文档分支，文档更新（如 `docs/update-version-management`）
+
+#### 8.1.3 提交粒度控制
+
+每次提交包含一个完整的功能或修复，便于追溯和回滚：
+
+- ✅ 一个功能一个提交
+- ✅ 提交粒度适中，不过大也不过小
+- ✅ 提交信息清晰描述改动内容
+
+### 8.2 提交历史展示
+
+#### 8.2.1 规范的提交历史
+
+项目提交历史采用规范格式，便于理解和维护。以下是最近15次提交的示例：
+
+```
+992a04d docs: add code version management section
+24916bb refactor: extract magic values as constants
+dc30930 fix: improve Item class constructor comments
+54e5c1f feat: add optional debug logging utility
+da9e5af 规范化注释新增的功能类，并且优化项目结构增强可读性
+7ab9352 加入系统总体架构与命令模式uml类图
+b11c3f3 新增use命令支持钥匙解锁、地图查看等功能...
+```
+
+**提交信息规范说明：**
+- ✅ 使用类型前缀（feat, fix, refactor, docs等）
+- ✅ 提交信息简洁清晰（标题≤50字符）
+- ✅ 可添加详细说明（使用多行提交信息）
+
+#### 8.2.2 分支结构图
+
+清晰的分支结构展示了项目的开发流程。使用 `git log --oneline --graph --all -20` 可以查看完整的分支结构：
+
+```
+* 992a04d docs: add code version management section
+* 24916bb refactor: extract magic values as constants
+* dc30930 fix: improve Item class constructor comments
+| * e78a7fd fix: improve code comments and documentation
+|/  
+* 54e5c1f feat: add optional debug logging utility
+| * da415d8 新增Logger工具类，提供可选的调试日志功能
+|/  
+* da9e5af 规范化注释新增的功能类，并且优化项目结构增强可读性
+```
+
+**分支说明：**
+- `master`: 主分支，稳定版本
+- `dev`: 开发分支，集成新功能
+- `feat/logging`: 功能分支，开发日志功能
+- `fix/improve-comments`: 修复分支，改进代码注释
+- `refactor/extract-constants`: 重构分支，提取常量
+- `docs/update-version-management`: 文档分支，更新版本管理文档
+
+#### 8.2.3 提交详细信息示例
+
+规范的提交信息包含类型、简短描述和详细说明：
+
+```
+commit 54e5c1f
+feat: add optional debug logging utility
+
+- 新增Logger工具类，提供可选的调试日志功能
+- 默认关闭，不影响游戏正常体验
+- 支持enableDebug/disableDebug切换
+- 在Game类中集成日志调用示例
+```
+
+### 8.3 Git使用实践
+
+#### 8.3.1 基本工作流程
+
+本项目采用标准的分支管理工作流程：
+
+1. **创建功能分支**：从dev分支创建新的功能分支
+   ```bash
+   git checkout dev
+   git checkout -b feat/feature-name
+   ```
+
+2. **开发功能**：在功能分支上进行开发，进行小步提交
+   ```bash
+   git add .
+   git commit -m "feat: add new feature"
+   ```
+
+3. **提交代码**：使用规范的提交信息格式（Conventional Commits）
+
+4. **合并到dev**：功能完成后合并到dev分支
+   ```bash
+   git checkout dev
+   git merge feat/feature-name
+   ```
+
+5. **测试验证**：在dev分支上进行测试，确保功能正常
+
+6. **合并到master**：稳定后合并到master分支，发布正式版本
+
+#### 8.3.2 常用Git命令
+
+**查看提交历史：**
+```bash
+# 查看最近15次提交（单行格式）
+git log --oneline -15
+
+# 查看分支结构图
+git log --oneline --graph --all -20
+
+# 查看提交详细信息
+git log -1 --pretty=format:"%h - %an, %ar : %s%n%b"
+```
+
+**分支管理：**
+```bash
+# 查看所有分支
+git branch -a
+
+# 创建功能分支
+git checkout -b feat/feature-name
+
+# 创建修复分支
+git checkout -b fix/bug-name
+
+# 创建重构分支
+git checkout -b refactor/refactor-name
+
+# 创建文档分支
+git checkout -b docs/update-docs
+```
+
+**提交代码：**
+```bash
+# 单行提交
+git commit -m "feat: add new feature"
+
+# 多行提交（推荐）
+git commit -m "feat: add new feature" -m "- 详细说明1" -m "- 详细说明2"
+
+# 修改最新提交
+git commit --amend -m "feat: updated feature description"
+```
+
+**合并分支：**
+```bash
+# 切换到目标分支
+git checkout dev
+
+# 合并功能分支
+git merge feat/feature-name
+
+# 删除已合并的分支
+git branch -d feat/feature-name
+```
+
+#### 8.3.3 实际应用示例
+
+**示例1：创建功能分支并提交**
+```bash
+# 1. 创建功能分支
+git checkout dev
+git checkout -b feat/logging
+
+# 2. 开发功能（创建Logger.java）
+# ... 编写代码 ...
+
+# 3. 提交代码
+git add src/cn/edu/whut/sept/zuul/Logger.java
+git commit -m "feat: add optional debug logging utility
+
+- 新增Logger工具类，提供可选的调试日志功能
+- 默认关闭，不影响游戏正常体验
+- 支持enableDebug/disableDebug切换"
+
+# 4. 合并到dev
+git checkout dev
+git merge feat/logging
+```
+
+**示例2：创建修复分支并提交**
+```bash
+# 1. 创建修复分支
+git checkout -b fix/improve-comments
+
+# 2. 修改代码（改进注释）
+# ... 修改Item.java的注释 ...
+
+# 3. 提交代码
+git add src/cn/edu/whut/sept/zuul/Item.java
+git commit -m "fix: improve Item class constructor comments
+
+- 添加构造函数注释说明
+- 提高代码可读性和可维护性"
+
+# 4. 合并到dev
+git checkout dev
+git merge fix/improve-comments
+```
+
+### 8.4 提交信息规范详解
+
+#### 8.4.1 提交类型说明
+
+| 类型 | 说明 | 使用场景 | 示例 |
+|------|------|----------|------|
+| `feat` | 新功能 | 添加新功能、新特性 | `feat: add optional debug logging utility` |
+| `fix` | 修复bug | 修复代码中的错误 | `fix: improve Item class constructor comments` |
+| `refactor` | 重构代码 | 代码重构，不改变功能 | `refactor: extract magic values as constants` |
+| `docs` | 文档更新 | 更新文档、注释 | `docs: add code version management section` |
+| `style` | 代码格式 | 代码格式调整（不影响功能） | `style: format code with consistent indentation` |
+| `test` | 测试相关 | 添加或修改测试用例 | `test: add unit tests for Item class` |
+| `chore` | 构建工具 | 构建过程或辅助工具的变动 | `chore: update .gitignore` |
+
+#### 8.4.2 提交信息格式要求
+
+**格式模板：**
+```
+类型: 简短描述（≤50字符）
+
+详细说明（可选）：
+- 改动点1
+- 改动点2
+- 改动点3
+```
+
+**格式要求：**
+- ✅ 标题使用类型前缀（feat, fix, refactor等）
+- ✅ 标题长度不超过50字符
+- ✅ 标题使用英文，详细说明可使用中文
+- ✅ 详细说明使用列表格式，清晰描述改动内容
+
+**好的提交信息示例：**
+```bash
+feat: add optional debug logging utility
+
+- 新增Logger工具类，提供可选的调试日志功能
+- 默认关闭，不影响游戏正常体验
+- 支持enableDebug/disableDebug切换
+- 在Game类中集成日志调用示例
+```
+
+**不好的提交信息示例：**
+```bash
+# ❌ 缺少类型前缀
+新增Logger工具类，提供可选的调试日志功能
+
+# ❌ 标题过长
+feat: add optional debug logging utility class that can be enabled or disabled and integrated into Game class
+
+# ❌ 格式不规范
+新增Logger工具类
+```
+
+### 8.5 分支管理策略详解
+
+#### 8.5.1 分支命名规范
+
+**主分支：**
+- `master`: 主分支，稳定版本，用于生产环境
+- `dev`: 开发分支，集成新功能，用于日常开发
+
+**功能分支（feat/）：**
+- `feat/logging`: 开发日志功能
+- `feat/item-system`: 开发物品系统
+- `feat/player-system`: 开发玩家系统
+
+**修复分支（fix/）：**
+- `fix/improve-comments`: 改进代码注释
+- `fix/port-conflict`: 修复端口冲突问题
+- `fix/bug-name`: 修复特定bug
+
+**重构分支（refactor/）：**
+- `refactor/extract-constants`: 提取常量
+- `refactor/command-pattern`: 重构为命令模式
+- `refactor/improve-structure`: 改进代码结构
+
+**文档分支（docs/）：**
+- `docs/update-version-management`: 更新版本管理文档
+- `docs/update-readme`: 更新README文档
+- `docs/add-api-docs`: 添加API文档
+
+#### 8.5.2 分支合并流程
+
+1. **功能开发流程：**
+   ```
+   dev → feat/feature-name → dev → master
+   ```
+
+2. **Bug修复流程：**
+   ```
+   dev → fix/bug-name → dev → master
+   ```
+
+3. **代码重构流程：**
+   ```
+   dev → refactor/refactor-name → dev → master
+   ```
+
+#### 8.5.3 当前项目分支结构
+
+项目当前包含以下分支：
+
+- ✅ `master`: 主分支，稳定版本
+- ✅ `dev`: 开发分支，集成新功能
+- ✅ `feat/logging`: 日志功能分支
+- ✅ `fix/improve-comments`: 改进注释分支
+- ✅ `fix/code-improvements`: 代码改进分支
+- ✅ `refactor/extract-constants`: 提取常量分支
+- ✅ `docs/update-version-management`: 版本管理文档分支
+
+### 8.6 提交粒度控制
+
+#### 8.6.1 提交粒度原则
+
+- ✅ **一个功能一个提交**：每次提交包含一个完整的功能或修复
+- ✅ **提交粒度适中**：不过大（包含太多功能）也不过小（单个字符修改）
+- ✅ **逻辑完整性**：每次提交应该是一个逻辑完整的改动单元
+
+#### 8.6.2 提交粒度示例
+
+**好的提交粒度：**
+```bash
+# 提交1：添加Logger类
+feat: add optional debug logging utility
+
+# 提交2：改进Item类注释
+fix: improve Item class constructor comments
+
+# 提交3：提取常量
+refactor: extract magic values as constants
+```
+
+**不好的提交粒度：**
+```bash
+# ❌ 一次提交包含太多功能
+feat: add use command, item system, player system, back command, magic cookie, transport room
+
+# ❌ 提交粒度太小
+fix: fix typo in comment
+fix: fix another typo
+fix: fix third typo
+```
+
+### 8.7 版本管理总结
+
+通过规范的Git版本管理：
+
+- ✅ **提交历史清晰可追溯**：使用规范的提交信息格式，便于理解每次改动的目的
+- ✅ **分支结构合理规范**：采用清晰的分支命名和合并策略
+- ✅ **提交粒度适中**：每次提交包含一个完整的功能或修复
+- ✅ **便于团队协作**：规范的提交信息便于代码审查和协作
+- ✅ **支持快速定位问题**：清晰的提交历史便于定位和修复问题
+- ✅ **支持代码回滚**：合理的提交粒度便于精确回滚到特定版本
+
+**版本管理最佳实践：**
+1. 使用Conventional Commits格式规范提交信息
+2. 采用清晰的分支命名和合并策略
+3. 控制提交粒度，一个功能一个提交
+4. 定期合并分支，保持代码同步
+5. 使用分支保护，确保代码质量
+
+---
+
+## 九、项目总结
 
 ### 8.1 完成的主要任务
 
