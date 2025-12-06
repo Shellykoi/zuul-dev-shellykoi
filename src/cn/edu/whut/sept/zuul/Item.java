@@ -41,6 +41,7 @@ public class Item
 
     /**
      * 创建一个物品对象。
+     * 默认物品类型为NORMAL，不可使用。
      * 
      * @param name 物品的名称
      * @param description 物品的描述信息
@@ -51,7 +52,7 @@ public class Item
         this.name = name;
         this.description = description;
         this.weight = weight;
-        this.itemType = "NORMAL";
+        this.itemType = "NORMAL";  // 默认物品类型为普通物品，不可使用
         this.usable = false;
         this.useEffect = "";
     }
